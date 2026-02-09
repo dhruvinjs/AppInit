@@ -1,0 +1,38 @@
+<%_ if (database === 'mongo') { _%>
+import mongoose from 'mongoose';
+
+const connectDB = async () => {
+  try {
+    if (mongoose.connection.readyState >= 1) return;
+    const conn = await mongoose.connect(process.env.MONGODB_URI);
+    console.log(`MongoDB Connected: ${conn.connection.host}`);
+  } catch (error) {
+    console.error(`MongoDB Connection Error: ${error instanceof Error ? error.message : error}`);
+    process.exit(1);
+  }
+};
+
+export default connectDB;
+
+<%_ } else if (database === 'postgresql_prisma') { _%>
+import { PrismaClient } from '@prisma/client';
+
+// Singleton to prevent connection exhaustion in dev
+const prisma = global.prisma || new PrismaClient();
+
+if (process.env.NODE_ENV !== 'production') {
+  global.prisma = prisma;
+}
+
+export default prisma;
+
+<%_ } else if (database === 'postgresql') { _%>
+import pkg from 'pg';
+const { Pool } = pkg;
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
+
+export default pool;
+<%_ } _%>

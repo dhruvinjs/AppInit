@@ -1,0 +1,46 @@
+// typescript index file
+import express, { Request, Response, NextFunction } from "express";
+import helmet from "helmet";
+import cors from "cors";
+import routes from "./routes/index.js";
+import errorHandler from "./middleware/errorHandler.js";
+import { logger } from "./utils/logger.js";
+import { config } from "./config/env.js";
+
+const app = express();
+const port = config.port;
+
+app.use(express.json());
+app.use(helmet());
+app.use(cors());
+app.use(express.urlencoded({ extended: true }));
+
+// logger middleware
+app.use((req: Request, res: Response, next: NextFunction) => {
+  logger.info({
+    ip: req.ip,
+    method: req.method,
+    path: req.path,
+  });
+  next();
+});
+
+app.use("/api", routes);
+
+app.use(errorHandler);
+
+app.listen(port, () => {
+  logger.info(`Server running on port ${port}`);
+  logger.info(`Environment: ${config.nodeEnv}`);
+});
+
+process.on("SIGINT", () => {
+  console.log("SIGINT received, forcefully stopping the server");
+  process.exit(0);
+});
+process.on("SIGTERM", () => {
+  console.log("SIGTERM received, gracefully stopping the server");
+  process.exit(0);
+});
+
+export default app;

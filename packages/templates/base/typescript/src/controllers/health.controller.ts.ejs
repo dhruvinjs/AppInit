@@ -1,0 +1,49 @@
+import { asyncHandler } from "../middleware/asyncHandler.js";
+<%_ if (database === 'mongo') { _%>
+import mongoose from "mongoose";
+<%_ } else if (database === 'postgresql_prisma') { _%>
+import prisma from "../config/db.js";
+<%_ } else if (database === 'postgresql') { _%>
+import pool from "../config/db.js";
+<%_ } _%>
+import { Request, Response } from "express";
+
+export const getHealth = asyncHandler(async (req: Request, res: Response) => {
+  const uptime = process.uptime();
+  let dbStatus = "disconnected";
+
+  <%_ if (database === 'mongo') { _%>
+  dbStatus = mongoose.connection.readyState === 1 ? "connected" : "disconnected";
+  
+  <%_ } else if (database === 'postgresql_prisma') { _%>
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    dbStatus = "connected";
+  } catch (e) {
+    dbStatus = "error";
+  }
+
+  <%_ } else if (database === 'postgresql') { _%>
+  try {
+    await pool.query("SELECT 1");
+    dbStatus = "connected";
+  } catch (e) {
+    dbStatus = "error";
+  }
+  <%_ } _%>
+
+  const isHealthy =
+    dbStatus === "connected" ||
+    dbStatus === "disconnected" ||
+    database === "none";
+
+  res.status(isHealthy ? 200 : 503).json({
+    success: true,
+    data: {
+      status: "ok",
+      timestamp: new Date().toISOString(),
+      uptime: `${Math.floor(uptime)}s`,
+      database: dbStatus,
+    },
+  });
+});

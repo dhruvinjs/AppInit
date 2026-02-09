@@ -1,135 +1,91 @@
-# Turborepo starter
+# Stack Forge
 
-This Turborepo starter is maintained by the Turborepo core team.
+Stack Forge is an opinionated, high-performance CLI tool designed to scaffold production-ready Node.js backends. It automates project structure, database setup, and runtime essentials so you can go from idea to initial commit quickly.
 
-## Using this example
+This repository is a monorepo containing the CLI and a web app that showcases or supports it.
 
-Run the following command:
+## Features
 
-```sh
-npx create-turbo@latest
+- EJS dynamic templating for generated source files
+- Interactive command flow with Inquirer
+- Robust file operations with fs-extra
+- Visual feedback with Ora spinners and Chalk
+- Modular database injection (MongoDB/Mongoose, PostgreSQL with pg, PostgreSQL with Prisma)
+- Production-ready base: Pino logging, env support, and security middleware
+
+## Tech Stack
+
+| Tool          | Purpose             | Why Not Alternatives                |
+| ------------- | ------------------- | ----------------------------------- |
+| Commander     | CLI framework       | Battle-tested, simple, does the job |
+| Inquirer      | Interactive prompts | Industry standard                   |
+| Ora           | Spinners            | Clean UX                            |
+| Chalk         | Colors              | Universal                           |
+| fs-extra      | File ops            | Better than native fs               |
+| ejs           | Templates           | Simple interpolation                |
+
+## Monorepo Structure
+
+```text
+STACKFORGE/
+├── apps/
+│   └── web/                # Frontend app
+├── packages/
+│   ├── cli/                # Stack Forge CLI
+│   │   ├── dist/            # Compiled output
+│   │   └── src/
+│   │       ├── actions/     # Side effects (git init, npm install, etc.)
+│   │       ├── generator/   # Core generation engine
+│   │       ├── templates/   # Template source files
+│   │       ├── constants.ts # Dependency maps
+│   │       ├── index.ts     # CLI entry
+│   │       └── types.ts     # CLI types
+│   ├── eslint-config/       # Shared lint config
+│   ├── typescript-config/   # Shared tsconfig presets
+│   └── ui/                  # Shared UI package
+├── package.json             # Turbo + workspace scripts
+└── pnpm-workspace.yaml
 ```
 
-## What's inside?
+## Generator Flow
 
-This Turborepo includes the following packages/apps:
+1. Template selection: REST API or WebSocket + REST API
+2. WebSocket engine (if selected): `socket.io` or `ws`
+3. Language: TypeScript or JavaScript
+4. Database: None, MongoDB (Mongoose), PostgreSQL (pg), PostgreSQL (Prisma)
+5. Finalization: file ops, dependency install, git init
 
-### Apps and Packages
+## Local Development
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+Install deps (root):
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
-
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+```bash
+pnpm install
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+Build CLI:
 
-```
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
-
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+```bash
+pnpm --filter ./packages/cli run build
 ```
 
-### Develop
+Run CLI locally:
 
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
+```bash
+pnpm --filter ./packages/cli run dev
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+## Publishing the CLI
 
-```
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
+The CLI is published from `packages/cli`:
 
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
+```bash
+pnpm --filter ./packages/cli run build
+pnpm --filter ./packages/cli publish --access public
 ```
 
-### Remote Caching
+Make sure `packages/cli/package.json` includes a unique `name`, a `bin` field, and a valid `version` before publishing.
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+## License
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+MIT. See [LICENSE](LICENSE).
