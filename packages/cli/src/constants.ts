@@ -7,8 +7,15 @@ export const restApi_deps = [
   "pino",
   "pino-http", //middleware for the http
   "zod",
+  "pino-pretty",
 ];
-export const restApi_dev_deps = ["nodemon", "eslint", "prettier"];
+export const restApi_dev_deps = [
+  "nodemon",
+  "eslint@^9.0.0", // Force version 9
+  "@eslint/js@^9.0.0", // Match with eslint
+  "prettier",
+  "globals@^15.0.0", // Helps ESLint understand Node/Browser variables
+];
 export const restApi_deps_typescript = [
   "@types/express",
   "@types/jsonwebtoken",
@@ -16,6 +23,7 @@ export const restApi_deps_typescript = [
   "typescript",
   "@types/cors",
   "ts-node",
+  "typescript-eslint@^8.0.0", // Works perfectly with v9
 ];
 export const websocket_project_deps = [
   {
@@ -33,14 +41,12 @@ export const db_deps = [
     deps: [],
   },
   { db: "mongo", deps: ["mongoose"] },
-  { db: "postgresql", deps: ["pg@^8.11.0", "pg-hstore@^2.3.4"] },
   { db: "postgresql_prisma", deps: ["@prisma/client@^6.0.0"] },
 ];
 
 export const db_deps_dev = [
   { db: "none", deps: [] },
   { db: "mongo", deps: [] },
-  { db: "postgresql", deps: [] },
   { db: "postgresql_prisma", deps: ["prisma@^6.0.0"] },
 ];
 

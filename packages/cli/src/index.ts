@@ -2,11 +2,13 @@ import { Command } from "commander";
 const program = new Command();
 import inquirer from "inquirer";
 import path from "node:path";
-import { generateRandomNames } from "./utils/utils..js";
+import {
+  checkEnv,
+  generateRandomNames,
+  getSafeProjectPath,
+  isToolInstalled,
+} from "./utils/utils.js";
 import { setup_restApi_project } from "./generator/shell.js";
-
-//todo
-// code express js with javascript template with using ejs
 
 program
   .name("stackforge-init-app")
@@ -27,24 +29,29 @@ program
           },
         ]);
         name = answer.name;
-
-        const config = await inquirer.prompt([
+        const project_path = getSafeProjectPath(name);
+        const templateSelection = await inquirer.prompt([
           {
             type: "select",
             name: "template",
             message: "Template",
             choices: [
               {
-                name: "REST API [Express, CORS, dotenv, JWT, Helmet]",
+                name: "REST API [Express, CORS, dotenv, JWT, Helmet, Pino]",
                 value: "rest_api",
               },
               {
-                name: "WebSockets + REST API [Express, CORS, dotenv, JWT, ws]",
+                name: "WebSockets + REST API [Express, CORS, dotenv, JWT, ws or socket.io]",
                 value: "websocket+rest_api",
               },
             ],
             default: 0,
           },
+        ]);
+
+        await checkEnv();
+
+        const config = await inquirer.prompt([
           {
             type: "select",
             name: "websocket_package",
@@ -60,7 +67,7 @@ program
               },
             ],
             default: 0,
-            when: (answers) => answers.template === "websocket+rest_api", // ← Only show if WebSocket selected
+            when: () => templateSelection.template === "websocket+rest_api", // ← Only show if WebSocket selected
           },
           {
             type: "select",
@@ -80,14 +87,13 @@ program
           {
             type: "select",
             name: "database",
-            message: "Database",
+            message: (answers) =>
+              answers.language === "js"
+                ? "Database (Warning: JavaScript does not work properly with PostgreSQL (Prisma). Use TypeScript.)"
+                : "Database",
             choices: [
               { name: "None", value: "none" },
               { name: "MongoDB (Mongoose)", value: "mongo" },
-              {
-                name: "Postgresql (Raw SQL with pg driver)",
-                value: "postgresql",
-              },
               {
                 name: "PostgreSQL (Prisma)",
                 value: "postgresql_prisma",
@@ -95,22 +101,31 @@ program
             ],
             default: 0,
           },
+          {
+            type: "confirm",
+            name: "docker",
+            message:
+              "Would you like to generate a Dockerfile for this project?",
+            default: false,
+          },
         ]);
-        console.log(config.template);
-        console.log(config.database);
-        console.log(config.language);
-        const projectPath = path.join(process.cwd(), name);
+        const fullConfig = { ...templateSelection, ...config };
+        if (fullConfig.docker && !(await isToolInstalled("docker"))) {
+          console.warn(
+            'Warning: "docker" is not installed. Dockerfile will be generated, but you cannot build/run containers until Docker is installed.',
+          );
+        }
+        // console.log(fullConfig.template);
+        // console.log(fullConfig.database);
+        // console.log(fullConfig.language);
         await setup_restApi_project({
-          db: config.database as
-            | "mongo"
-            | "postgresql"
-            | "postgresql_prisma"
-            | "none",
-          path: projectPath,
+          db: fullConfig.database as "mongo" | "postgresql_prisma" | "none",
+          path: project_path,
           name: name,
-          language: config.language as "js" | "ts",
-          template: config.template as string,
-          websocket_package: config.websocket_package,
+          language: fullConfig.language as "js" | "ts",
+          template: fullConfig.template as string,
+          websocket_package: fullConfig.websocket_package,
+          Dockerfile: fullConfig.docker,
         });
       }
       console.log(name);

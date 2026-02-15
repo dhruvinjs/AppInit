@@ -26,3 +26,8 @@ out/
 # OS files
 .DS_Store
 Thumbs.db
+
+<%_ if (database === 'postgresql_prisma') { _%>
+# Prisma generated client
+src/generated/prisma
+<%_ } _%>

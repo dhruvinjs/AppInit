@@ -1,17 +1,25 @@
 import pino from "pino";
+<%_ if (language === "js") { _%>
+import { config } from "../config/env.js";
+<%_ } else { _%>
 import { config } from "../config/env";
+<%_ } _%>
 
-export const logger = pino({
-  level: config.nodeEnv === "production" ? "info" : "debug",
-  transport:
-    config.nodeEnv === "development"
-      ? {
+const logger =
+  config.nodeEnv === "development"
+    ? pino(
+        { level: "debug" },
+        pino.transport({
           target: "pino-pretty",
           options: {
             colorize: true,
             ignore: "pid,hostname",
             translateTime: "SYS:standard",
           },
-        }
-      : undefined,
-});
+        }),
+      )
+    : pino({ level: "info" });
+
+export { logger };
+
+

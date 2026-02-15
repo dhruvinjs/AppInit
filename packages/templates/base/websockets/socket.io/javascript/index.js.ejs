@@ -1,0 +1,87 @@
+import express from "express";
+import helmet from "helmet";
+import cors from "cors";
+import { createServer } from "http";
+import { Server } from "socket.io";
+import routes from "./src/routes/index.js";
+import errorHandler from "./src/middleware/errorHandler.js";
+import { logger } from "./src/utils/logger.js";
+import { config } from "./src/config/env.js";
+
+<%_ if (database === 'postgresql_prisma') { _%>
+// Prisma note: in prisma/schema.prisma use:
+// provider = "prisma-client-js"
+// output = "../generated/prisma"
+<%_ } _%>
+
+const app = express();
+const port = config.port;
+
+// 1. Create the HTTP Server
+const http_server = createServer(app);
+
+// 2. Initialize Socket.io on the HTTP Server
+const socket_io_server = new Server(http_server, {
+  cors: {
+    origin: "*", 
+  }
+});
+
+// Middleware
+app.use(express.json());
+app.use(helmet());
+app.use(cors());
+app.use(express.urlencoded({ extended: true }));
+
+app.use((req, res, next) => {
+  logger.info({
+    method: req.method,
+    path: req.path,
+    ip: req.ip,
+  });
+  next();
+});
+
+// Routes
+app.use("/api", routes);
+app.use(errorHandler);
+
+// 3. Socket.io Event Handling
+socket_io_server.on("connection", (socket) => {
+  console.log(`Client connected: ${socket.id}`);
+
+  // 'data' is already an object here—no JSON.parse needed
+  socket.on("message", (data) => {
+    if (data.type === "ping") {
+      // No JSON.stringify needed
+      socket.send({ type: "pong" });
+    }
+  });
+
+  socket.on("disconnect", () => {
+    console.log(`Client disconnected: ${socket.id}`);
+  });
+
+  socket.on("error", (err) => {
+    console.error("Socket Error:", err);
+  });
+});
+
+// 4. Start the server using http_server
+http_server.listen(port, () => {
+  logger.info(`Server running on port ${port}`);
+  logger.info(`Environment: ${config.nodeEnv}`);
+});
+
+// Graceful Shutdown
+const shutdown = () => {
+  console.log("Stopping server...");
+  http_server.close(() => {
+    process.exit(0);
+  });
+};
+
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);
+
+export default http_server;

@@ -1,1 +1,7 @@
-<%- include("../../../common/src/routes/index.ejs") %>
+<%_ if (database === 'postgresql_prisma') { _%>
+// Prisma note: in prisma/schema.prisma use:
+// provider = "prisma-client-js"
+// output = "../generated/prisma"
+<%_ } _%>
+
+<%- await include("../../../common/src/routes/index.ejs") %>

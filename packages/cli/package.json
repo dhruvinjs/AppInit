@@ -26,6 +26,7 @@
   "author": "dhruvinjs",
   "license": "MIT",
   "devDependencies": {
+    "@types/ejs": "^3.1.5",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^22.15.3",
     "typescript": "^5.9.3"

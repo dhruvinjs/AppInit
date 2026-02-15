@@ -3,12 +3,14 @@ import { asyncHandler } from "../middleware/asyncHandler.js";
 import mongoose from "mongoose";
 <%_ } else if (database === 'postgresql_prisma') { _%>
 import prisma from "../config/db.js";
-<%_ } else if (database === 'postgresql') { _%>
-import pool from "../config/db.js";
 <%_ } _%>
 
 export const getHealth = asyncHandler(async (req, res) => {
   const uptime = process.uptime();
+  <%_ if (database === 'none') { _%>
+  const dbStatus = "disconnected";
+  const isHealthy = true;
+  <%_ } else { _%>
   let dbStatus = "disconnected";
 
   <%_ if (database === 'mongo') { _%>
@@ -21,20 +23,10 @@ export const getHealth = asyncHandler(async (req, res) => {
   } catch (e) {
     dbStatus = "error";
   }
-
-  <%_ } else if (database === 'postgresql') { _%>
-  try {
-    await pool.query("SELECT 1");
-    dbStatus = "connected";
-  } catch (e) {
-    dbStatus = "error";
-  }
   <%_ } _%>
 
-  const isHealthy =
-    dbStatus === "connected" ||
-    dbStatus === "disconnected" ||
-    database === "none";
+  const isHealthy = dbStatus === "connected";
+  <%_ } _%>
 
   res.status(isHealthy ? 200 : 503).json({
     success: true,

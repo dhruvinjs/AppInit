@@ -14,12 +14,17 @@ import {
   project_path,
 } from "../constants.js";
 import type { ProjectConfig } from "../types.js";
-import { showSuccessfulMessage, updatePackageJson } from "../utils/utils..js";
+import {
+  removeProjectDirectory,
+  showSuccessfulMessage,
+  updatePackageJson,
+  updateTsconfig,
+} from "../utils/utils.js";
+import { write_rest_templates } from "./template_engine.js";
 
 export async function setup_restApi_project(project_config: ProjectConfig) {
+  const project_dir_path = path.join(project_path, project_config.name);
   try {
-    const project_dir_path = path.join(project_path, project_config.name);
-
     if (!fs.existsSync(project_dir_path)) {
       fs.mkdirSync(project_dir_path, { recursive: true });
     }
@@ -63,10 +68,14 @@ export async function setup_restApi_project(project_config: ProjectConfig) {
 
     // Step 5: Install dev dependencies
     if (project_config.language === "ts") {
-      console.log("typescript project");
+      // console.log("typescript project");
       await oraPromise(setup_restApiforTypeScript_project(project_dir_path), {
         text: "Setuping typescript compiler",
         successText: chalk.green("Ts project enabled"),
+      });
+      await oraPromise(updateTsconfig(project_dir_path), {
+        text: "Configuring tsconfig.json...",
+        successText: chalk.green("tsconfig.json updated"),
       });
     }
     const devDeps = [];
@@ -115,26 +124,68 @@ export async function setup_restApi_project(project_config: ProjectConfig) {
         },
       );
     }
-    await oraPromise(updatePackageJson(project_dir_path, project_config.language), {
-      text: `Updating package.json with dev scripts...`,
-      successText: chalk.green("Updated Package.json"),
-    });
+    await oraPromise(
+      updatePackageJson(project_dir_path, project_config.language),
+      {
+        text: `Updating package.json with dev scripts...`,
+        successText: chalk.green("Updated Package.json"),
+      },
+    );
 
-    await oraPromise(execa(`git`, ["init"], { cwd: project_dir_path }), {
-      successText: chalk.green("Initialized git repositary"),
-    });
-    await oraPromise(execa(`npm`, ["install"], { cwd: project_dir_path }));
+    try {
+      await oraPromise(execa(`git`, ["init"], { cwd: project_dir_path }), {
+        successText: chalk.green("Initialized git repositary"),
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.warn(
+        chalk.yellow(
+          `Warning: git initialization failed. Continuing without git repo. Reason: ${message}`,
+        ),
+      );
+    }
+    await oraPromise(
+      write_rest_templates({
+        ...project_config,
+        path: project_dir_path,
+      }),
+      {
+        successText: chalk.green("Boilerplate code wrote successfully"),
+      },
+    );
     // Final success message
     showSuccessfulMessage(project_config);
   } catch (error) {
-    console.error(chalk.red("Failed to setup project:"), error);
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(chalk.red(`Fatal: ${message}`));
+
+    await cleanupProjectDirectoryOnFailure(project_dir_path);
     process.exit(1);
+  }
+}
+
+async function cleanupProjectDirectoryOnFailure(projectDirPath: string) {
+  try {
+    await removeProjectDirectory(projectDirPath);
+    console.log(chalk.yellow(`Removed directory: ${projectDirPath}`));
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.warn(
+      chalk.yellow(
+        `Warning: failed to clean up project directory. Directory kept at "${projectDirPath}". Reason: ${message}`,
+      ),
+    );
   }
 }
 
 export async function generate_restApis_folder(project_path: string) {
   try {
-    await execa("mkdir", ["-p", ...restApi_dirs], { cwd: project_path });
+    const srcDir = path.join(project_path, "src");
+    fs.mkdirSync(srcDir, { recursive: true });
+    const dirs = restApi_dirs.map((dir) => path.join("src", dir));
+    for (const dir of dirs) {
+      fs.mkdirSync(path.join(project_path, dir), { recursive: true });
+    }
   } catch (error) {
     throw new Error(`Failed to create directories: ${error}`);
   }
@@ -147,11 +198,10 @@ export async function setup_restApiforTypeScript_project(project_path: string) {
     });
     await execa("npx", ["tsc", "--init"], { cwd: project_path });
   } catch (error) {
-    console.log(
-      "Failed to setup the typescript project for restApi template: ",
-      error,
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(
+      `Failed to set up the TypeScript project for rest_api template: ${message}`,
     );
-    return null;
   }
 }
 
@@ -175,10 +225,8 @@ export async function setup_websockets_project(
       });
     }
     await execa("npm", ["install", ...dependencies], { cwd: project_path });
-
-    return true;
   } catch (error) {
-    console.log("failed to setup the websocket project: ", error);
-    return false;
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to set up websocket project: ${message}`);
   }
 }

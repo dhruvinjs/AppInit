@@ -1,5 +1,9 @@
 import { Router } from "express";
+<%_ if (language === "ts") { _%>
+import { getHealth } from "../controllers/health.controller";
+<%_ } else { _%>
 import { getHealth } from "../controllers/health.controller.js";
+<%_ } _%>
 
 const router = Router();
 

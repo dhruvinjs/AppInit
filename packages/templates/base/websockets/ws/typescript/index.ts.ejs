@@ -1,4 +1,4 @@
-// typescript index file
+// typescript index file with a websocket server
 import express, { type Request, type Response, type NextFunction } from "express";
 import helmet from "helmet";
 import cors from "cors";
@@ -6,6 +6,8 @@ import routes from "./routes/index";
 import errorHandler from "./middleware/errorHandler";
 import { logger } from "./utils/logger";
 import { config } from "./config/env";
+import { createServer } from "http";
+import { WebSocketServer } from "ws";
 
 <%_ if (database === 'postgresql_prisma') { _%>
 // Prisma note: in prisma/schema.prisma use:
@@ -15,13 +17,12 @@ import { config } from "./config/env";
 
 const app = express();
 const port = config.port;
-
+const http_server = createServer(app);
+const wss = new WebSocketServer({ server: http_server });
 app.use(express.json());
 app.use(helmet());
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
-
-// Call connectDb() from ./config/db to connect to your database.
 
 // logger middleware
 app.use((req: Request, res: Response, next: NextFunction) => {
@@ -37,9 +38,41 @@ app.use("/api", routes);
 
 app.use(errorHandler);
 
-app.listen(port, () => {
+http_server.listen(port, () => {
   logger.info(`Server running on port ${port}`);
   logger.info(`Environment: ${config.nodeEnv}`);
+});
+
+wss.on("connection", (socket) => {
+  console.log("Client connected");
+  // Basic Error Handling for the socket
+  socket.on("error", console.error);
+  socket.on("message", (message: string) => {
+    try {
+      const msg = JSON.parse(message);
+      if (msg.type === "ping") {
+        socket.send(
+          JSON.stringify({
+            type: "pong",
+          }),
+        );
+        return;  
+      }
+    } catch (error) {
+      socket.send(
+        JSON.stringify({
+          type: "error",
+          message:
+            "Incorrect format for sending message, Only use Json_Format for sending messages",
+        }),
+      );
+      socket.close();
+      console.log(error);
+    }
+  });
+  socket.on("close", () => {
+    console.log("Client Disconnected");
+  });
 });
 
 process.on("SIGINT", () => {
@@ -51,4 +84,5 @@ process.on("SIGTERM", () => {
   process.exit(0);
 });
 
-export default app;
+
+export default http_server;

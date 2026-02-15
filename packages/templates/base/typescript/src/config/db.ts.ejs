@@ -1,0 +1,38 @@
+<%_ if (database === 'mongo') { _%>
+import mongoose from "mongoose";
+
+const connectDb = async (): Promise<void> => {
+  try {
+    if (mongoose.connection.readyState >= 1) return;
+    const conn = await mongoose.connect(process.env.MONGODB_URI);
+    console.log(`MongoDB Connected: ${conn.connection.host}`);
+  } catch (error) {
+    console.error(
+      `MongoDB Connection Error: ${error instanceof Error ? error.message : error}`
+    );
+    process.exit(1);
+  }
+};
+
+export default connectDb;
+<%_ } else if (database === 'postgresql_prisma') { _%>
+import { PrismaClient } from "../generated/prisma/client";
+
+declare global {
+  var prisma: PrismaClient | undefined;
+}
+
+const prisma = global.prisma ?? new PrismaClient();
+
+if (process.env.NODE_ENV !== "production") {
+  global.prisma = prisma;
+}
+
+const connectDb = async (): Promise<void> => {
+  await prisma.$connect();
+  console.log("PostgreSQL Connected");
+};
+
+export { prisma, connectDb };
+export default prisma;
+<%_ } _%>
