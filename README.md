@@ -15,14 +15,14 @@ This repository is a monorepo containing the CLI and a web app that showcases or
 
 ## Tech Stack
 
-| Tool          | Purpose             | Why Not Alternatives                |
-| ------------- | ------------------- | ----------------------------------- |
-| Commander     | CLI framework       | Battle-tested, simple, does the job |
-| Inquirer      | Interactive prompts | Industry standard                   |
-| Ora           | Spinners            | Clean UX                            |
-| Chalk         | Colors              | Universal                           |
-| fs-extra      | File ops            | Better than native fs               |
-| ejs           | Templates           | Simple interpolation                |
+| Tool      | Purpose             | Why Not Alternatives                |
+| --------- | ------------------- | ----------------------------------- |
+| Commander | CLI framework       | Battle-tested, simple, does the job |
+| Inquirer  | Interactive prompts | Industry standard                   |
+| Ora       | Spinners            | Clean UX                            |
+| Chalk     | Colors              | Universal                           |
+| fs-extra  | File ops            | Better than native fs               |
+| ejs       | Templates           | Simple interpolation                |
 
 ## Monorepo Structure
 
@@ -46,6 +46,72 @@ STACKFORGE/
 ├── package.json             # Turbo + workspace scripts
 └── pnpm-workspace.yaml
 ```
+
+## CLI Usage
+
+### Interactive Mode (Default)
+
+```bash
+stackforge-init-app my-app
+```
+
+This will prompt you to select template, language, database, and other options interactively.
+
+### Quick Start with Preset Flags
+
+Get started instantly with common configurations:
+
+```bash
+# TypeScript + REST API
+stackforge-init-app my-app --ts-rest
+
+# TypeScript + WebSocket (Socket.io)
+stackforge-init-app my-app --ts-io
+
+# JavaScript + REST API
+stackforge-init-app my-app --js-rest
+
+# JavaScript + WebSocket (ws)
+stackforge-init-app my-app --js-ws
+```
+
+### Full Configuration with Flags
+
+```bash
+# With database and Docker
+stackforge-init-app my-app --ts-rest --db mongo --docker
+
+# With custom package manager
+stackforge-init-app my-app --ts-io --db postgresql_prisma --pm pnpm
+
+# Skip installation and git
+stackforge-init-app my-app --js-rest --no-install --no-git
+```
+
+### Available Flags
+
+**Preset Shortcuts:**
+
+- `--ts` → TypeScript + REST API
+- `--js` → JavaScript + REST API
+- `--ts-rest`, `--ts-ws`, `--ts-io` → TypeScript variants
+- `--js-rest`, `--js-ws`, `--js-io` → JavaScript variants
+
+**Configuration Flags:**
+
+- `--template <type>` → `rest_api` or `websocket+rest_api`
+- `--lang <lang>` → `js` or `ts`
+- `--db <database>` → `none`, `mongo`, or `postgresql_prisma`
+- `--ws <package>` → `ws` or `socket.io`
+- `--docker` / `--no-docker` → Include/skip Dockerfile
+
+**Utility Flags:**
+
+- `--no-install` → Skip dependency installation
+- `--no-git` → Skip git initialization
+- `--pm <manager>` → Package manager: `npm`, `pnpm`, or `yarn`
+
+For detailed documentation, see [packages/cli/README.md](packages/cli/README.md).
 
 ## Generator Flow
 

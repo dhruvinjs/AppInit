@@ -24,18 +24,37 @@ import { write_rest_templates } from "./template_engine.js";
 
 export async function setup_restApi_project(project_config: ProjectConfig) {
   const project_dir_path = path.join(project_path, project_config.name);
+  const pm = project_config.packageManager || "npm";
+  const pmInstall = pm === "yarn" ? "add" : "install";
+
   try {
     if (!fs.existsSync(project_dir_path)) {
       fs.mkdirSync(project_dir_path, { recursive: true });
     }
-    await oraPromise(execa("npm", ["init", "-y"], { cwd: project_dir_path }), {
-      text: "Initializing npm project...",
-      successText: chalk.green("npm initialized"),
+
+    if (project_config.skipInstall) {
+      console.log(
+        chalk.yellow(
+          "⚠️  Skipping dependency installation (--no-install flag)",
+        ),
+      );
+      console.log(
+        chalk.cyan(
+          `Run "${pm} install" in the project directory to install dependencies later.`,
+        ),
+      );
+    }
+
+    // Handle pnpm init differently - it doesn't support -y flag
+    const initArgs = pm === "pnpm" ? ["init"] : ["init", "-y"];
+    await oraPromise(execa(pm, initArgs, { cwd: project_dir_path }), {
+      text: "Initializing project...",
+      successText: chalk.green(`${pm} initialized`),
     });
 
     // Step 2: Set package name
     await oraPromise(
-      execa("npm", ["pkg", "set", `name=${project_config.name}`], {
+      execa(pm, ["pkg", "set", `name=${project_config.name}`], {
         cwd: project_dir_path,
       }),
       {
@@ -47,18 +66,20 @@ export async function setup_restApi_project(project_config: ProjectConfig) {
     );
 
     // Step 3: Install dependencies
-    const deps = restApi_deps;
-    const dbDependenciesObj = db_deps.find((d) => d.db === project_config.db);
-    const dbDeps = dbDependenciesObj?.deps ?? [];
+    if (!project_config.skipInstall) {
+      const deps = restApi_deps;
+      const dbDependenciesObj = db_deps.find((d) => d.db === project_config.db);
+      const dbDeps = dbDependenciesObj?.deps ?? [];
 
-    const allDeps = [...deps, ...dbDeps];
-    await oraPromise(
-      execa("npm", ["install", ...allDeps], { cwd: project_dir_path }),
-      {
-        text: `Installing dependencies (${allDeps.length} packages)...`,
-        successText: chalk.green("Dependencies installed"),
-      },
-    );
+      const allDeps = [...deps, ...dbDeps];
+      await oraPromise(
+        execa(pm, [pmInstall, ...allDeps], { cwd: project_dir_path }),
+        {
+          text: `Installing dependencies (${allDeps.length} packages)...`,
+          successText: chalk.green("Dependencies installed"),
+        },
+      );
+    }
 
     // Step 4: Create directories
     await oraPromise(generate_restApis_folder(project_dir_path), {
@@ -69,31 +90,43 @@ export async function setup_restApi_project(project_config: ProjectConfig) {
     // Step 5: Install dev dependencies
     if (project_config.language === "ts") {
       // console.log("typescript project");
-      await oraPromise(setup_restApiforTypeScript_project(project_dir_path), {
-        text: "Setuping typescript compiler",
-        successText: chalk.green("Ts project enabled"),
-      });
+      if (!project_config.skipInstall) {
+        await oraPromise(
+          setup_restApiforTypeScript_project(project_dir_path, pm, pmInstall),
+          {
+            text: "Setuping typescript compiler",
+            successText: chalk.green("Ts project enabled"),
+          },
+        );
+      }
       await oraPromise(updateTsconfig(project_dir_path), {
         text: "Configuring tsconfig.json...",
         successText: chalk.green("tsconfig.json updated"),
       });
     }
-    const devDeps = [];
-    const dbDevDependenciesObj = db_deps_dev.find(
-      (d) => d.db === project_config.db,
-    );
-    const dbDev_Deps = dbDevDependenciesObj?.deps ?? [];
-    devDeps.push(...dbDev_Deps);
-    await oraPromise(
-      execa("npm", ["install", "-D", ...devDeps, ...restApi_dev_deps], {
-        cwd: project_dir_path,
-      }),
-      {
-        text: `Installing dev dependencies (${devDeps.length + restApi_dev_deps.length} packages)...`,
-        successText: chalk.green("Dev dependencies installed"),
-      },
-    );
-    if (project_config.db === "postgresql_prisma") {
+
+    if (!project_config.skipInstall) {
+      const devDeps = [];
+      const dbDevDependenciesObj = db_deps_dev.find(
+        (d) => d.db === project_config.db,
+      );
+      const dbDev_Deps = dbDevDependenciesObj?.deps ?? [];
+      devDeps.push(...dbDev_Deps);
+      await oraPromise(
+        execa(pm, [pmInstall, "-D", ...devDeps, ...restApi_dev_deps], {
+          cwd: project_dir_path,
+        }),
+        {
+          text: `Installing dev dependencies (${devDeps.length + restApi_dev_deps.length} packages)...`,
+          successText: chalk.green("Dev dependencies installed"),
+        },
+      );
+    }
+
+    if (
+      project_config.db === "postgresql_prisma" &&
+      !project_config.skipInstall
+    ) {
       await oraPromise(
         execa("npx", ["prisma", "init"], {
           cwd: project_dir_path,
@@ -108,13 +141,16 @@ export async function setup_restApi_project(project_config: ProjectConfig) {
     // Step 6: Setup websockets if template includes websocket
     if (
       project_config.template.includes("websocket") &&
-      project_config.websocket_package
+      project_config.websocket_package &&
+      !project_config.skipInstall
     ) {
       await oraPromise(
         setup_websockets_project(
           project_config.websocket_package,
           project_config.language,
           project_dir_path,
+          pm,
+          pmInstall,
         ),
         {
           text: `Setting up ${project_config.websocket_package}...`,
@@ -132,16 +168,22 @@ export async function setup_restApi_project(project_config: ProjectConfig) {
       },
     );
 
-    try {
-      await oraPromise(execa(`git`, ["init"], { cwd: project_dir_path }), {
-        successText: chalk.green("Initialized git repositary"),
-      });
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      console.warn(
-        chalk.yellow(
-          `Warning: git initialization failed. Continuing without git repo. Reason: ${message}`,
-        ),
+    if (!project_config.skipGit) {
+      try {
+        await oraPromise(execa(`git`, ["init"], { cwd: project_dir_path }), {
+          successText: chalk.green("Initialized git repositary"),
+        });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        console.warn(
+          chalk.yellow(
+            `Warning: git initialization failed. Continuing without git repo. Reason: ${message}`,
+          ),
+        );
+      }
+    } else {
+      console.log(
+        chalk.yellow("⚠️  Skipping git initialization (--no-git flag)"),
       );
     }
     await oraPromise(
@@ -191,9 +233,13 @@ export async function generate_restApis_folder(project_path: string) {
   }
 }
 
-export async function setup_restApiforTypeScript_project(project_path: string) {
+export async function setup_restApiforTypeScript_project(
+  project_path: string,
+  pm: string = "npm",
+  pmInstall: string = "install",
+) {
   try {
-    await execa(`npm`, ["install", "-D", ...restApi_deps_typescript], {
+    await execa(pm, [pmInstall, "-D", ...restApi_deps_typescript], {
       cwd: project_path,
     });
     await execa("npx", ["tsc", "--init"], { cwd: project_path });
@@ -209,6 +255,8 @@ export async function setup_websockets_project(
   websocket_package: string,
   language: string,
   project_path: string,
+  pm: string = "npm",
+  pmInstall: string = "install",
 ) {
   try {
     const dependencies = [];
@@ -220,11 +268,11 @@ export async function setup_websockets_project(
     }
     dependencies.push(...wsDeps.deps);
     if (language === "ts" && websocket_package === "ws") {
-      await execa("npm", ["install", "-D", "@types/ws"], {
+      await execa(pm, [pmInstall, "-D", "@types/ws"], {
         cwd: project_path,
       });
     }
-    await execa("npm", ["install", ...dependencies], { cwd: project_path });
+    await execa(pm, [pmInstall, ...dependencies], { cwd: project_path });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     throw new Error(`Failed to set up websocket project: ${message}`);
