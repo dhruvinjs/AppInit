@@ -10,14 +10,14 @@ export interface ProjectConfig {
   skipGit?: boolean;
   packageManager?: "npm" | "pnpm" | "yarn";
 }
-
+//preset configs are preseted means already decided
 export interface PresetConfig {
   flag: boolean;
   template: "rest_api" | "websocket+rest_api";
   language: "js" | "ts";
   websocketPackage?: "socket.io" | "ws";
 }
-
+//flat config are the interfaces in which user decides from the scratch
 export interface FlagConfig {
   template?: "rest_api" | "websocket+rest_api";
   language?: "js" | "ts";

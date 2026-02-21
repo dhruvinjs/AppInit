@@ -1,7 +1,6 @@
 import { Command } from "commander";
 const program = new Command();
 import inquirer from "inquirer";
-import path from "node:path";
 import type { FlagConfig, PresetConfig } from "./types.js";
 import {
   checkEnv,
@@ -10,12 +9,32 @@ import {
   isToolInstalled,
 } from "./utils/utils.js";
 import { setup_restApi_project } from "./generator/shell.js";
+import { template_flags } from "./constants.js";
+
+function validateRawFlags(args: string[]) {
+  if (args.length >= 300) {
+    throw new Error("Input is too long! Are You trying to hack me or what?");
+  }
+  let found_presets: string[] = [];
+  for (const flags of args) {
+    if (template_flags.includes(flags)) {
+      found_presets.push(flags);
+    }
+  }
+  //if no flag provided then I can ask the user only that bro what template do you want
+  if (found_presets.length > 1) {
+    // console.log(template_flag);
+    throw new Error("Cannot have 2 template flags in one command");
+  }
+  if (args.includes("--docker") && args.includes("--no-docker")) {
+    throw new Error("Docker and No-Docker Flag cannot exist in same command");
+  }
+}
 
 program
   .name("stackforge-init-app")
   .command("stackforge-init-app")
   .description("Generate production-ready backend projects")
-  .argument("[project-name]")
   .version("1.0.0")
   // Preset flags
   .option("--ts", "TypeScript + REST API (default template)")
@@ -47,8 +66,19 @@ Examples:
   $ stackforge-init-app my-app --template rest_api --lang ts --db postgresql_prisma
     `,
   )
-  .action(async (project_name, options) => {
+  .action(async (options) => {
     try {
+      // validateRawCommand(process.argv.slice(2).join(" "));
+      //process.argv prints everythign you typed into the terminal like
+      // npm init -y, here slice means create a new array after 2nd argument
+      // npx stackforge-init-app --ts-ws mongo => this will only create a new array
+      // of ['--ts-ws','mongo']
+      validateRawFlags(process.argv.slice(2));
+      // console.log(process.argv.slice(2));
+      // if (process.argv.slice(2)[1]!.startsWith("--")) {
+      //   console.log(process.argv.slice(2)[0]);
+      //   project_name = null;
+      // }
       // Parse preset flags into configuration
       const flagConfig: FlagConfig = {};
 
@@ -85,12 +115,6 @@ Examples:
       ];
 
       const activePresets = presets.filter((p) => p.flag);
-      if (activePresets.length > 1) {
-        console.error(
-          "❌ Error: Multiple preset flags detected. Please use only one preset flag.",
-        );
-        process.exit(1);
-      }
 
       if (activePresets.length === 1) {
         const preset = activePresets[0];
@@ -148,6 +172,16 @@ Examples:
         flagConfig.websocket_package = options.ws;
       }
 
+      if (options.pm) {
+        const validPm = ["npm", "pnpm", "yarn"];
+        if (!validPm.includes(options.pm)) {
+          console.error(
+            `❌ Error: Invalid package manager "${options.pm}". Use: npm, pnpm, or yarn`,
+          );
+          process.exit(1);
+        }
+      }
+
       // Handle docker flag (options.docker will be true if --docker, false if --no-docker, undefined if not specified)
       // If docker is undefined, set it to false (no docker)
       if (options.docker !== undefined) {
@@ -164,30 +198,26 @@ Examples:
         process.exit(1);
       }
 
-      // Validate: PostgreSQL + JavaScript warning
+      // PostgreSQL_Prisma + JavaScript warning
       if (
-        flagConfig.database === "postgresql_prisma" &&
-        flagConfig.language === "js"
+        flagConfig.database === "postgresql_prisma"
+        && flagConfig.language === "js"
       ) {
         console.warn(
           "⚠️  Warning: JavaScript does not work properly with PostgreSQL (Prisma). Consider using TypeScript.",
         );
       }
 
-      let name = project_name;
-      if (!name) {
-        const answer = await inquirer.prompt([
-          {
-            type: "input",
-            name: "name",
-            message: "Project Name",
-            default: generateRandomNames(),
-          },
-        ]);
-        name = answer.name;
-      }
-      const project_path = getSafeProjectPath(name);
-
+      const answer = await inquirer.prompt([
+        {
+          type: "input",
+          name: "name",
+          message: "Project Name",
+          default: generateRandomNames(),
+        },
+      ]);
+      let project_path = getSafeProjectPath(answer.name);
+      // console.log(name);
       // Only prompt for template if not provided via flags
       const templateSelection = flagConfig.template
         ? { template: flagConfig.template }
@@ -229,8 +259,8 @@ Examples:
           ],
           default: 0,
           when: () =>
-            !flagConfig.websocket_package &&
-            templateSelection.template === "websocket+rest_api",
+            !flagConfig.websocket_package
+            && templateSelection.template === "websocket+rest_api",
         },
         {
           type: "select",
@@ -273,6 +303,27 @@ Examples:
           default: false,
           when: () => flagConfig.docker === undefined,
         },
+        {
+          type: "select",
+          name: "packageManager",
+          message: "Package Manager",
+          choices: [
+            {
+              name: "npm (default)",
+              value: "npm",
+            },
+            {
+              name: "pnpm",
+              value: "pnpm",
+            },
+            {
+              name: "yarn",
+              value: "yarn",
+            },
+          ],
+          default: 0,
+          when: () => !options.pm,
+        },
       ]);
 
       const fullConfig = {
@@ -290,14 +341,14 @@ Examples:
       await setup_restApi_project({
         db: fullConfig.database as "mongo" | "postgresql_prisma" | "none",
         path: project_path,
-        name: name,
+        name: answer.name,
         language: fullConfig.language as "js" | "ts",
         template: fullConfig.template as string,
         websocket_package: fullConfig.websocket_package,
         Dockerfile: fullConfig.docker,
         skipInstall: options.install === false,
         skipGit: options.git === false,
-        packageManager: options.pm || "npm",
+        packageManager: options.pm || fullConfig.packageManager || "npm",
       });
 
       console.log(name);

@@ -11,7 +11,6 @@ import {
   restApi_dirs,
   restApi_dev_deps,
   websocket_project_deps,
-  project_path,
 } from "../constants.js";
 import type { ProjectConfig } from "../types.js";
 import {
@@ -19,15 +18,28 @@ import {
   showSuccessfulMessage,
   updatePackageJson,
   updateTsconfig,
+  isToolInstalled,
 } from "../utils/utils.js";
 import { write_rest_templates } from "./template_engine.js";
 
+let current_project_path: string | null = null;
+
 export async function setup_restApi_project(project_config: ProjectConfig) {
-  const project_dir_path = path.join(project_path, project_config.name);
+  const project_dir_path = path.join(project_config.path, project_config.name);
   const pm = project_config.packageManager || "npm";
   const pmInstall = pm === "yarn" ? "add" : "install";
 
+  // Set the current project path for SIGINT handler
+  current_project_path = project_dir_path;
+
   try {
+    // Check if package manager is installed
+    if (!(await isToolInstalled(pm))) {
+      throw new Error(
+        `Package manager "${pm}" is not installed or not in your PATH.`,
+      );
+    }
+
     if (!fs.existsSync(project_dir_path)) {
       fs.mkdirSync(project_dir_path, { recursive: true });
     }
@@ -45,8 +57,8 @@ export async function setup_restApi_project(project_config: ProjectConfig) {
       );
     }
 
-    // Handle pnpm init differently - it doesn't support -y flag
-    const initArgs = pm === "pnpm" ? ["init"] : ["init", "-y"];
+    // Handle package manager init differently - pnpm and yarn don't support -y flag
+    const initArgs = pm === "npm" ? ["init", "-y"] : ["init"];
     await oraPromise(execa(pm, initArgs, { cwd: project_dir_path }), {
       text: "Initializing project...",
       successText: chalk.green(`${pm} initialized`),
@@ -197,16 +209,20 @@ export async function setup_restApi_project(project_config: ProjectConfig) {
     );
     // Final success message
     showSuccessfulMessage(project_config);
+    // Clear the current project path on success
+    current_project_path = null;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.error(chalk.red(`Fatal: ${message}`));
 
     await cleanupProjectDirectoryOnFailure(project_dir_path);
+    // Clear the current project path after cleanup
+    current_project_path = null;
     process.exit(1);
   }
 }
 
-async function cleanupProjectDirectoryOnFailure(projectDirPath: string) {
+export async function cleanupProjectDirectoryOnFailure(projectDirPath: string) {
   try {
     await removeProjectDirectory(projectDirPath);
     console.log(chalk.yellow(`Removed directory: ${projectDirPath}`));
@@ -274,7 +290,36 @@ export async function setup_websockets_project(
     }
     await execa(pm, [pmInstall, ...dependencies], { cwd: project_path });
   } catch (error) {
+    if (error instanceof Error) {
+      if (error.name === "ExitPromptError") {
+        console.log("\n⚠️ Process Cancelled by user");
+        process.exit(0);
+      }
+    }
     const message = error instanceof Error ? error.message : String(error);
     throw new Error(`Failed to set up websocket project: ${message}`);
   }
 }
+
+process.on("SIGINT", async () => {
+  console.log(chalk.yellow("\n⚠️ Process cancelled by user (Ctrl+C detected)"));
+
+  if (current_project_path) {
+    console.log(chalk.yellow("Cleaning up project directory..."));
+    await cleanupProjectDirectoryOnFailure(current_project_path);
+    current_project_path = null;
+  }
+
+  process.exit(0);
+});
+
+process.on("SIGTERM", async () => {
+  console.log(chalk.yellow("\n⚠️ Process cancelled by user (Ctrl+D detected)"));
+  if (current_project_path) {
+    console.log(chalk.yellow("Cleaned Up Project Directory"));
+    await cleanupProjectDirectoryOnFailure(current_project_path);
+    current_project_path = null;
+  }
+
+  process.exit(0);
+});

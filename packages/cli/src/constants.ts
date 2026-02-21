@@ -58,4 +58,17 @@ export const restApi_dirs = [
   "services",
   "config",
 ];
-export const project_path = "/home/dhruvin/Projects/";
+export const package_manager_env = [
+  { package_manager: "npm", deps: ["npm", "npx"] },
+  { package_manager: "pnpm,", deps: ["pnpm"] },
+  { package_manager: "yarn", deps: ["yarn"] },
+];
+
+export const template_flags = [
+  "--ts-ws",
+  "--ts-rest",
+  "--ts-io",
+  "--js-rest",
+  "--js-ws",
+  "--js-io",
+];

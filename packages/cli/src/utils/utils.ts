@@ -60,7 +60,6 @@ export async function updatePackageJson(
       scripts: { ...pkg.scripts, ...scripts },
     };
     await fse.writeJson(packagePath, orderedPkg, { spaces: 2 });
-
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     throw new Error(`Error updating package.json: ${message}`);
@@ -123,6 +122,13 @@ export function validateProjectName(name: string) {
 
   if (!/^[a-zA-Z0-9._-]+$/.test(name))
     throw new Error("Invalid characters in project name");
+  if (name.length > 40) {
+    throw new Error("Name Should be less than 50 Characters");
+  }
+  if (name.length <= 3) {
+    console.log(name);
+    throw new Error("Name should contain more than 3 characters");
+  }
 }
 
 export function getSafeProjectPath(name: string) {
@@ -172,6 +178,8 @@ export async function removeProjectDirectory(projectPath: string) {
     await fse.remove(projectPath);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to remove project directory "${projectPath}": ${message}`);
+    throw new Error(
+      `Failed to remove project directory "${projectPath}": ${message}`,
+    );
   }
 }
