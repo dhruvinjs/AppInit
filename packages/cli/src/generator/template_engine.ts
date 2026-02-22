@@ -89,7 +89,7 @@ async function write_websocket_index(
 }
 
 function get_template_package_root() {
-  const pkg_json_path = require.resolve("@stackforge/templates/package.json");
+  const pkg_json_path = require.resolve("appinit-templates/package.json");
   return path.dirname(pkg_json_path);
 }
 function give_template_file_path() {

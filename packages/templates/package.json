@@ -1,5 +1,5 @@
 {
-  "name": "@stackforge/templates",
+  "name": "appinit-templates",
   "version": "1.0.0",
   "type": "module",
   "files": [

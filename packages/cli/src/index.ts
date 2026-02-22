@@ -48,8 +48,7 @@ function validateRawFlags(args: string[]) {
 }
 
 program
-  .name("stackforge-init-app")
-  // .command("stackforge-init-app")
+  .name("appinit")
   .description("Generate production-ready backend projects")
   .version("1.0.0")
   // Preset flags
@@ -75,10 +74,10 @@ program
     "after",
     `
 Examples:
-  $ stackforge-init-app my-app --ts-rest
-  $ stackforge-init-app my-app --ts-io --db mongo --docker
-  $ stackforge-init-app my-app --js-ws --db none --no-git
-  $ stackforge-init-app my-app --template rest_api --lang ts --db postgresql_prisma
+  $ appinit my-app --ts-rest
+  $ appinit my-app --ts-io --db mongo --docker
+  $ appinit my-app --js-ws --db none --no-git
+  $ appinit my-app --template rest_api --lang ts --db postgresql_prisma
     `,
   )
   .action(async (options) => {
@@ -86,7 +85,7 @@ Examples:
       // validateRawCommand(process.argv.slice(2).join(" "));
       //process.argv prints everythign you typed into the terminal like
       // npm init -y, here slice means create a new array after 2nd argument
-      // npx stackforge-init-app --ts-ws mongo => this will only create a new array
+      // npx appinit --ts-ws mongo => this will only create a new array
       // of ['--ts-ws','mongo']
       validateRawFlags(process.argv.slice(2));
       const flagConfig: FlagConfig = {};

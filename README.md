@@ -52,7 +52,7 @@ STACKFORGE/
 ### Interactive Mode (Default)
 
 ```bash
-stackforge-init-app my-app
+appinit my-app
 ```
 
 This will prompt you to select template, language, database, and other options interactively.
@@ -63,29 +63,29 @@ Get started instantly with common configurations:
 
 ```bash
 # TypeScript + REST API
-stackforge-init-app my-app --ts-rest
+appinit my-app --ts-rest
 
 # TypeScript + WebSocket (Socket.io)
-stackforge-init-app my-app --ts-io
+appinit my-app --ts-io
 
 # JavaScript + REST API
-stackforge-init-app my-app --js-rest
+appinit my-app --js-rest
 
 # JavaScript + WebSocket (ws)
-stackforge-init-app my-app --js-ws
+appinit my-app --js-ws
 ```
 
 ### Full Configuration with Flags
 
 ```bash
 # With database and Docker
-stackforge-init-app my-app --ts-rest --db mongo --docker
+appinit my-app --ts-rest --db mongo --docker
 
 # With custom package manager
-stackforge-init-app my-app --ts-io --db postgresql_prisma --pm pnpm
+appinit my-app --ts-io --db postgresql_prisma --pm pnpm
 
 # Skip git initialization
-stackforge-init-app my-app --js-rest --no-git
+appinit my-app --js-rest --no-git
 ```
 
 ### Available Flags

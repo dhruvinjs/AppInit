@@ -1,5 +1,5 @@
 {
-  "name": "stackforge-init-app",
+  "name": "appinit",
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
@@ -10,7 +10,7 @@
     "dev": "tsc -b && node dist/index.js"
   },
   "bin": {
-    "stackforge-init-app": "dist/index.js"
+    "appinit": "dist/index.js"
   },
   "files": [
     "dist"
@@ -28,7 +28,7 @@
     "jsonwebtoken": "^9.0.3",
     "ora": "^9.1.0",
     "unique-names-generator": "^4.7.1",
-    "@stackforge/templates": "workspace:*"
+    "appinit-templates": "workspace:*"
   },
   "author": "dhruvinjs",
   "license": "MIT",
