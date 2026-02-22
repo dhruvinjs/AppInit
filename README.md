@@ -84,8 +84,8 @@ stackforge-init-app my-app --ts-rest --db mongo --docker
 # With custom package manager
 stackforge-init-app my-app --ts-io --db postgresql_prisma --pm pnpm
 
-# Skip installation and git
-stackforge-init-app my-app --js-rest --no-install --no-git
+# Skip git initialization
+stackforge-init-app my-app --js-rest --no-git
 ```
 
 ### Available Flags
@@ -107,7 +107,6 @@ stackforge-init-app my-app --js-rest --no-install --no-git
 
 **Utility Flags:**
 
-- `--no-install` → Skip dependency installation
 - `--no-git` → Skip git initialization
 - `--pm <manager>` → Package manager: `npm`, `pnpm`, or `yarn`
 
@@ -119,7 +118,7 @@ For detailed documentation, see [packages/cli/README.md](packages/cli/README.md)
 2. WebSocket engine (if selected): `socket.io` or `ws`
 3. Language: TypeScript or JavaScript
 4. Database: None, MongoDB (Mongoose), PostgreSQL (pg), PostgreSQL (Prisma)
-5. Finalization: file ops, dependency install, git init
+5. Finalization: file ops, dependency install (always), git init
 
 ## Local Development
 

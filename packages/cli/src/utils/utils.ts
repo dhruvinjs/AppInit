@@ -126,7 +126,7 @@ export function validateProjectName(name: string) {
     throw new Error("Name Should be less than 50 Characters");
   }
   if (name.length <= 3) {
-    console.log(name);
+    // console.log(name);
     throw new Error("Name should contain more than 3 characters");
   }
 }
@@ -136,7 +136,7 @@ export function getSafeProjectPath(name: string) {
 
   const base = process.cwd();
   const resolved = path.resolve(base, name);
-
+  // console.log(resolved);
   if (!resolved.startsWith(base + path.sep)) {
     throw new Error("Path traversal attempt blocked");
   }

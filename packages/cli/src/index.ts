@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { Command } from "commander";
 const program = new Command();
 import inquirer from "inquirer";
@@ -9,23 +11,37 @@ import {
   isToolInstalled,
 } from "./utils/utils.js";
 import { setup_restApi_project } from "./generator/shell.js";
-import { template_flags } from "./constants.js";
-
+import {
+  package_manager_env,
+  db_deps_dev,
+  template_flags,
+} from "./constants.js";
 function validateRawFlags(args: string[]) {
   if (args.length >= 300) {
     throw new Error("Input is too long! Are You trying to hack me or what?");
   }
-  let found_presets: string[] = [];
-  for (const flags of args) {
-    if (template_flags.includes(flags)) {
-      found_presets.push(flags);
-    }
-  }
+  const found_presets = args.filter((flags) => template_flags.includes(flags));
   //if no flag provided then I can ask the user only that bro what template do you want
   if (found_presets.length > 1) {
     // console.log(template_flag);
     throw new Error("Cannot have 2 template flags in one command");
   }
+  const allowed_dbs = db_deps_dev.map((items) => items.db);
+  const found_dbs = args.filter((dbs) => allowed_dbs.includes(dbs));
+
+  if (found_dbs.length > 1) {
+    throw new Error(
+      `Cannot have 2 database choices in one command. You Choose: ${found_dbs.join(",")}`,
+    );
+  }
+  const allowed_pms = package_manager_env.map((items) => items.package_manager);
+  const found_pms = args.filter((pms) => allowed_pms.includes(pms));
+  if (found_pms.length > 1) {
+    throw new Error(
+      `Cannot have 2 package_manager choices in one command. You Choose: ${found_pms.join(",")}`,
+    );
+  }
+
   if (args.includes("--docker") && args.includes("--no-docker")) {
     throw new Error("Docker and No-Docker Flag cannot exist in same command");
   }
@@ -33,7 +49,7 @@ function validateRawFlags(args: string[]) {
 
 program
   .name("stackforge-init-app")
-  .command("stackforge-init-app")
+  // .command("stackforge-init-app")
   .description("Generate production-ready backend projects")
   .version("1.0.0")
   // Preset flags
@@ -53,7 +69,6 @@ program
   .option("--docker", "Include Dockerfile")
   .option("--no-docker", "Skip Dockerfile")
   // Utility flags
-  .option("--no-install", "Skip dependency installation")
   .option("--no-git", "Skip git initialization")
   .option("--pm <manager>", "Package manager: npm, pnpm, or yarn")
   .addHelpText(
@@ -74,12 +89,6 @@ Examples:
       // npx stackforge-init-app --ts-ws mongo => this will only create a new array
       // of ['--ts-ws','mongo']
       validateRawFlags(process.argv.slice(2));
-      // console.log(process.argv.slice(2));
-      // if (process.argv.slice(2)[1]!.startsWith("--")) {
-      //   console.log(process.argv.slice(2)[0]);
-      //   project_name = null;
-      // }
-      // Parse preset flags into configuration
       const flagConfig: FlagConfig = {};
 
       // Handle preset flags
@@ -182,12 +191,13 @@ Examples:
         }
       }
 
-      // Handle docker flag (options.docker will be true if --docker, false if --no-docker, undefined if not specified)
-      // If docker is undefined, set it to false (no docker)
-      if (options.docker !== undefined) {
+      // Commander negated options can set defaults implicitly.
+      // Only treat docker as explicitly configured when the user passed a docker flag.
+      const dockerFlagProvided =
+        process.argv.includes("--docker")
+        || process.argv.includes("--no-docker");
+      if (dockerFlagProvided) {
         flagConfig.docker = options.docker;
-      } else {
-        flagConfig.docker = false;
       }
 
       // Validate: websocket package only makes sense with websocket template
@@ -217,7 +227,7 @@ Examples:
         },
       ]);
       let project_path = getSafeProjectPath(answer.name);
-      // console.log(name);
+      // console.log(project_path);
       // Only prompt for template if not provided via flags
       const templateSelection = flagConfig.template
         ? { template: flagConfig.template }
@@ -346,12 +356,9 @@ Examples:
         template: fullConfig.template as string,
         websocket_package: fullConfig.websocket_package,
         Dockerfile: fullConfig.docker,
-        skipInstall: options.install === false,
         skipGit: options.git === false,
         packageManager: options.pm || fullConfig.packageManager || "npm",
       });
-
-      console.log(name);
     } catch (error) {
       if (error instanceof Error) {
         if (error.name === "ExitPromptError") {

@@ -16,7 +16,7 @@ const connectDb = async (): Promise<void> => {
 
 export default connectDb;
 <%_ } else if (database === 'postgresql_prisma') { _%>
-import { PrismaClient } from "../generated/prisma/client";
+import { PrismaClient } from "../../generated/prisma/client";
 
 declare global {
   var prisma: PrismaClient | undefined;

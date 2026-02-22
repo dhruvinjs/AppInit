@@ -3,7 +3,9 @@ import { fileURLToPath } from "node:url";
 import fsExtra from "fs-extra";
 import ejs from "ejs";
 import type { ProjectConfig } from "../types.js";
+import { createRequire } from "node:module";
 
+const require = createRequire(import.meta.url);
 export async function write_rest_templates(project_config: ProjectConfig) {
   const isTs = project_config.language === "ts";
   const template_base_path = give_template_file_path();
@@ -86,13 +88,15 @@ async function write_websocket_index(
   await renderTemplateFile(websocketIndex, targetIndex, project_config);
 }
 
+function get_template_package_root() {
+  const pkg_json_path = require.resolve("@stackforge/templates/package.json");
+  return path.dirname(pkg_json_path);
+}
 function give_template_file_path() {
-  const currentDir = path.dirname(fileURLToPath(import.meta.url));
-  return path.resolve(currentDir, "../../../templates/base");
+  return path.join(get_template_package_root(), "base");
 }
 function give_dockerfile_path() {
-  const currentDir = path.dirname(fileURLToPath(import.meta.url));
-  return path.resolve(currentDir, "../../../templates/features/docker/base");
+  return path.join(get_template_package_root(), "features", "docker", "base");
 }
 
 async function listTemplateFiles(root: string) {

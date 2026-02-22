@@ -25,12 +25,11 @@ import { write_rest_templates } from "./template_engine.js";
 let current_project_path: string | null = null;
 
 export async function setup_restApi_project(project_config: ProjectConfig) {
-  const project_dir_path = path.join(project_config.path, project_config.name);
   const pm = project_config.packageManager || "npm";
   const pmInstall = pm === "yarn" ? "add" : "install";
 
   // Set the current project path for SIGINT handler
-  current_project_path = project_dir_path;
+  current_project_path = project_config.path;
 
   try {
     // Check if package manager is installed
@@ -40,26 +39,13 @@ export async function setup_restApi_project(project_config: ProjectConfig) {
       );
     }
 
-    if (!fs.existsSync(project_dir_path)) {
-      fs.mkdirSync(project_dir_path, { recursive: true });
-    }
-
-    if (project_config.skipInstall) {
-      console.log(
-        chalk.yellow(
-          "⚠️  Skipping dependency installation (--no-install flag)",
-        ),
-      );
-      console.log(
-        chalk.cyan(
-          `Run "${pm} install" in the project directory to install dependencies later.`,
-        ),
-      );
+    if (!fs.existsSync(project_config.path)) {
+      fs.mkdirSync(project_config.path, { recursive: true });
     }
 
     // Handle package manager init differently - pnpm and yarn don't support -y flag
     const initArgs = pm === "npm" ? ["init", "-y"] : ["init"];
-    await oraPromise(execa(pm, initArgs, { cwd: project_dir_path }), {
+    await oraPromise(execa(pm, initArgs, { cwd: project_config.path }), {
       text: "Initializing project...",
       successText: chalk.green(`${pm} initialized`),
     });
@@ -67,7 +53,7 @@ export async function setup_restApi_project(project_config: ProjectConfig) {
     // Step 2: Set package name
     await oraPromise(
       execa(pm, ["pkg", "set", `name=${project_config.name}`], {
-        cwd: project_dir_path,
+        cwd: project_config.path,
       }),
       {
         text: "Setting project name...",
@@ -78,23 +64,21 @@ export async function setup_restApi_project(project_config: ProjectConfig) {
     );
 
     // Step 3: Install dependencies
-    if (!project_config.skipInstall) {
-      const deps = restApi_deps;
-      const dbDependenciesObj = db_deps.find((d) => d.db === project_config.db);
-      const dbDeps = dbDependenciesObj?.deps ?? [];
+    const deps = restApi_deps;
+    const dbDependenciesObj = db_deps.find((d) => d.db === project_config.db);
+    const dbDeps = dbDependenciesObj?.deps ?? [];
 
-      const allDeps = [...deps, ...dbDeps];
-      await oraPromise(
-        execa(pm, [pmInstall, ...allDeps], { cwd: project_dir_path }),
-        {
-          text: `Installing dependencies (${allDeps.length} packages)...`,
-          successText: chalk.green("Dependencies installed"),
-        },
-      );
-    }
+    const allDeps = [...deps, ...dbDeps];
+    await oraPromise(
+      execa(pm, [pmInstall, ...allDeps], { cwd: project_config.path }),
+      {
+        text: `Installing dependencies (${allDeps.length} packages)...`,
+        successText: chalk.green("Dependencies installed"),
+      },
+    );
 
     // Step 4: Create directories
-    await oraPromise(generate_restApis_folder(project_dir_path), {
+    await oraPromise(generate_restApis_folder(project_config.path), {
       text: "Creating project structure...",
       successText: chalk.green("Directories created"),
     });
@@ -102,46 +86,39 @@ export async function setup_restApi_project(project_config: ProjectConfig) {
     // Step 5: Install dev dependencies
     if (project_config.language === "ts") {
       // console.log("typescript project");
-      if (!project_config.skipInstall) {
-        await oraPromise(
-          setup_restApiforTypeScript_project(project_dir_path, pm, pmInstall),
-          {
-            text: "Setuping typescript compiler",
-            successText: chalk.green("Ts project enabled"),
-          },
-        );
-      }
-      await oraPromise(updateTsconfig(project_dir_path), {
+      await oraPromise(
+        setup_restApiforTypeScript_project(project_config.path, pm, pmInstall),
+        {
+          text: "Setuping typescript compiler",
+          successText: chalk.green("Ts project enabled"),
+        },
+      );
+      await oraPromise(updateTsconfig(project_config.path), {
         text: "Configuring tsconfig.json...",
         successText: chalk.green("tsconfig.json updated"),
       });
     }
 
-    if (!project_config.skipInstall) {
-      const devDeps = [];
-      const dbDevDependenciesObj = db_deps_dev.find(
-        (d) => d.db === project_config.db,
-      );
-      const dbDev_Deps = dbDevDependenciesObj?.deps ?? [];
-      devDeps.push(...dbDev_Deps);
-      await oraPromise(
-        execa(pm, [pmInstall, "-D", ...devDeps, ...restApi_dev_deps], {
-          cwd: project_dir_path,
-        }),
-        {
-          text: `Installing dev dependencies (${devDeps.length + restApi_dev_deps.length} packages)...`,
-          successText: chalk.green("Dev dependencies installed"),
-        },
-      );
-    }
+    const devDeps = [];
+    const dbDevDependenciesObj = db_deps_dev.find(
+      (d) => d.db === project_config.db,
+    );
+    const dbDev_Deps = dbDevDependenciesObj?.deps ?? [];
+    devDeps.push(...dbDev_Deps);
+    await oraPromise(
+      execa(pm, [pmInstall, "-D", ...devDeps, ...restApi_dev_deps], {
+        cwd: project_config.path,
+      }),
+      {
+        text: `Installing dev dependencies (${devDeps.length + restApi_dev_deps.length} packages)...`,
+        successText: chalk.green("Dev dependencies installed"),
+      },
+    );
 
-    if (
-      project_config.db === "postgresql_prisma" &&
-      !project_config.skipInstall
-    ) {
+    if (project_config.db === "postgresql_prisma") {
       await oraPromise(
         execa("npx", ["prisma", "init"], {
-          cwd: project_dir_path,
+          cwd: project_config.path,
         }),
         {
           text: `Setting up prisma ...`,
@@ -152,15 +129,14 @@ export async function setup_restApi_project(project_config: ProjectConfig) {
 
     // Step 6: Setup websockets if template includes websocket
     if (
-      project_config.template.includes("websocket") &&
-      project_config.websocket_package &&
-      !project_config.skipInstall
+      project_config.template.includes("websocket")
+      && project_config.websocket_package
     ) {
       await oraPromise(
         setup_websockets_project(
           project_config.websocket_package,
           project_config.language,
-          project_dir_path,
+          project_config.path,
           pm,
           pmInstall,
         ),
@@ -173,7 +149,7 @@ export async function setup_restApi_project(project_config: ProjectConfig) {
       );
     }
     await oraPromise(
-      updatePackageJson(project_dir_path, project_config.language),
+      updatePackageJson(project_config.path, project_config.language),
       {
         text: `Updating package.json with dev scripts...`,
         successText: chalk.green("Updated Package.json"),
@@ -182,7 +158,7 @@ export async function setup_restApi_project(project_config: ProjectConfig) {
 
     if (!project_config.skipGit) {
       try {
-        await oraPromise(execa(`git`, ["init"], { cwd: project_dir_path }), {
+        await oraPromise(execa(`git`, ["init"], { cwd: project_config.path }), {
           successText: chalk.green("Initialized git repositary"),
         });
       } catch (error) {
@@ -201,7 +177,7 @@ export async function setup_restApi_project(project_config: ProjectConfig) {
     await oraPromise(
       write_rest_templates({
         ...project_config,
-        path: project_dir_path,
+        path: project_config.path,
       }),
       {
         successText: chalk.green("Boilerplate code wrote successfully"),
@@ -215,7 +191,7 @@ export async function setup_restApi_project(project_config: ProjectConfig) {
     const message = error instanceof Error ? error.message : String(error);
     console.error(chalk.red(`Fatal: ${message}`));
 
-    await cleanupProjectDirectoryOnFailure(project_dir_path);
+    await cleanupProjectDirectoryOnFailure(project_config.path);
     // Clear the current project path after cleanup
     current_project_path = null;
     process.exit(1);

@@ -1,14 +1,20 @@
 {
-  "name": "stackforge-cli",
+  "name": "stackforge-init-app",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npx tsc -b",
     "dev": "tsc -b && node dist/index.js"
   },
+  "bin": {
+    "stackforge-init-app": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
   "dependencies": {
     "chalk": "^5.6.2",
     "commander": "^14.0.3",
@@ -21,7 +27,8 @@
     "inquirer": "^13.2.2",
     "jsonwebtoken": "^9.0.3",
     "ora": "^9.1.0",
-    "unique-names-generator": "^4.7.1"
+    "unique-names-generator": "^4.7.1",
+    "@stackforge/templates": "workspace:*"
   },
   "author": "dhruvinjs",
   "license": "MIT",

@@ -6,7 +6,6 @@ export interface ProjectConfig {
   db: "mongo" | "postgresql_prisma" | "none";
   websocket_package?: "socket.io" | "ws";
   Dockerfile: Boolean;
-  skipInstall?: boolean;
   skipGit?: boolean;
   packageManager?: "npm" | "pnpm" | "yarn";
 }
