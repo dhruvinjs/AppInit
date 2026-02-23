@@ -1,6 +1,6 @@
-# Stack Forge
+# appinit
 
-Stack Forge is an opinionated, high-performance CLI tool designed to scaffold production-ready Node.js backends. It automates project structure, database setup, and runtime essentials so you can go from idea to initial commit quickly.
+appinit is an opinionated, high-performance CLI tool designed to scaffold production-ready Node.js backends. It automates project structure, database setup, and runtime essentials so you can go from idea to initial commit quickly.
 
 This repository is a monorepo containing the CLI and a web app that showcases or supports it.
 
@@ -27,11 +27,11 @@ This repository is a monorepo containing the CLI and a web app that showcases or
 ## Monorepo Structure
 
 ```text
-STACKFORGE/
+APPINIT/
 ├── apps/
 │   └── web/                # Frontend app
 ├── packages/
-│   ├── cli/                # Stack Forge CLI
+│   ├── cli/                # appinit CLI
 │   │   ├── dist/            # Compiled output
 │   │   └── src/
 │   │       ├── actions/     # Side effects (git init, npm install, etc.)
