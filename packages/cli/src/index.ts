@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { Command } from "commander";
+import { Command, type OptionValues } from "commander";
 const program = new Command();
 import inquirer from "inquirer";
 import type { FlagConfig, PresetConfig } from "./types.js";
@@ -9,6 +9,7 @@ import {
   generateRandomNames,
   getSafeProjectPath,
   isToolInstalled,
+  validateProjectName,
 } from "./utils/utils.js";
 import { setup_restApi_project } from "./generator/shell.js";
 import {
@@ -51,6 +52,7 @@ program
   .name("appinit")
   .description("Generate production-ready backend projects")
   .version("1.0.0")
+  .argument("[projectName]", "Project name (optional). Prompts if omitted.")
   // Preset flags
   .option("--ts", "TypeScript + REST API (default template)")
   .option("--js", "JavaScript + REST API (default template)")
@@ -80,7 +82,7 @@ Examples:
   $ appinit my-app --template rest_api --lang ts --db postgresql_prisma
     `,
   )
-  .action(async (options) => {
+  .action(async (projectName: string | undefined, options: OptionValues) => {
     try {
       // validateRawCommand(process.argv.slice(2).join(" "));
       //process.argv prints everythign you typed into the terminal like
@@ -217,15 +219,21 @@ Examples:
         );
       }
 
-      const answer = await inquirer.prompt([
-        {
-          type: "input",
-          name: "name",
-          message: "Project Name",
-          default: generateRandomNames(),
-        },
-      ]);
-      let project_path = getSafeProjectPath(answer.name);
+      const selectedProjectName = projectName
+        ? projectName
+        : (
+            await inquirer.prompt([
+              {
+                type: "input",
+                name: "name",
+                message: "Project Name",
+                default: generateRandomNames(),
+              },
+            ])
+          ).name;
+      const normalizedProjectName = selectedProjectName.trim();
+      validateProjectName(normalizedProjectName);
+      let project_path = getSafeProjectPath(normalizedProjectName);
       // console.log(project_path);
       // Only prompt for template if not provided via flags
       const templateSelection = flagConfig.template
@@ -350,7 +358,7 @@ Examples:
       await setup_restApi_project({
         db: fullConfig.database as "mongo" | "postgresql_prisma" | "none",
         path: project_path,
-        name: answer.name,
+        name: normalizedProjectName,
         language: fullConfig.language as "js" | "ts",
         template: fullConfig.template as string,
         websocket_package: fullConfig.websocket_package,

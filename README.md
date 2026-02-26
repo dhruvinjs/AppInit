@@ -55,7 +55,13 @@ APPINIT/
 appinit my-app
 ```
 
-This will prompt you to select template, language, database, and other options interactively.
+`my-app` is optional. If you skip it, CLI will ask for the project name:
+
+```bash
+appinit
+```
+
+This will prompt you to select project name, template, language, database, and other options interactively.
 
 ### Quick Start with Preset Flags
 
@@ -145,11 +151,22 @@ pnpm --filter ./packages/cli run dev
 The CLI is published from `packages/cli`:
 
 ```bash
-pnpm --filter ./packages/cli run build
-pnpm --filter ./packages/cli publish --access public
+cd packages/cli
+pnpm run build
+npm version patch
+npm publish --access public
 ```
 
-Make sure `packages/cli/package.json` includes a unique `name`, a `bin` field, and a valid `version` before publishing.
+Use `patch`, `minor`, or `major` with `npm version` depending on your release.
+
+If you prefer staying at repo root:
+
+```bash
+pnpm --filter ./packages/cli run build
+pnpm --filter ./packages/cli exec npm version patch
+pnpm --filter ./packages/cli publish --access public
+```
+Make sure `packages/cli/package.json` has a valid `name`, `bin`, and updated `version` before publishing.
 
 ## License
 

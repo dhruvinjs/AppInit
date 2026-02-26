@@ -10,11 +10,23 @@ This package creates an Express-based backend starter with optional WebSocket su
 npx @dhruvinjs/appinit my-app
 ```
 
+You can also run without a name and choose it in prompts:
+
+```bash
+npx @dhruvinjs/appinit
+```
+
 or install globally:
 
 ```bash
 npm i -g @dhruvinjs/appinit
 appinit my-app
+```
+
+Global command also supports no name:
+
+```bash
+appinit
 ```
 
 ## What this CLI actually does
