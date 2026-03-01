@@ -1,36 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/create-next-app).
+# AppInit Web Docs (`apps/web`)
 
-## Getting Started
+Frontend documentation site for `@dhruvinjs/appinit` inside the StackForge monorepo.
 
-First, run the development server:
+## Purpose
+
+This app provides:
+
+- Product landing page for AppInit
+- CLI usage examples
+- Canonical flag documentation aligned with `packages/cli/src/index.ts`
+
+## Local Development
+
+From repo root:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
+pnpm --filter web dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Build and Checks
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load Inter, a custom Google Font.
+```bash
+pnpm --filter web lint
+pnpm --filter web check-types
+pnpm --filter web build
+```
 
-## Learn More
+## CLI Flags (Source of Truth)
 
-To learn more about Next.js, take a look at the following resources:
+These are the currently supported flags in the CLI entrypoint (`packages/cli/src/index.ts`).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Preset flags
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `--ts`
+- `--js`
+- `--ts-rest`
+- `--ts-ws`
+- `--ts-io`
+- `--js-rest`
+- `--js-ws`
+- `--js-io`
 
-## Deploy on Vercel
+### Granular flags
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `--template <rest_api|websocket+rest_api>`
+- `--lang <js|ts>`
+- `--db <none|mongo|postgresql_prisma>`
+- `--ws <ws|socket.io>`
+- `--docker` / `--no-docker`
+- `--pm <npm|pnpm|yarn>`
+- `--no-git`
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Example commands
+
+```bash
+npx @dhruvinjs/appinit my-app --ts-rest
+npx @dhruvinjs/appinit my-app --ts-io --db mongo --docker
+npx @dhruvinjs/appinit my-app --js-ws --db none --no-git
+npx @dhruvinjs/appinit my-app --template rest_api --lang ts --db postgresql_prisma
+```
+
+## Frontend Structure
+
+```text
+apps/web/
+├── app/                       # Next.js app router
+│   └── page.tsx               # Page orchestrator
+└── components/home/           # Landing page sections and home-specific UI
+    ├── animated-icon.tsx
+    ├── background-effects.tsx
+    ├── constants.ts
+    ├── flags-section.tsx
+    ├── footer.tsx
+    ├── hero-section.tsx
+    ├── navbar.tsx
+    ├── stacks-section.tsx
+    ├── template-card.tsx
+    └── types.ts
+```
