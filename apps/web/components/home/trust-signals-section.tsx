@@ -15,7 +15,7 @@ export function TrustSignalsSection({ isDark }: TrustSignalsSectionProps) {
         <h2
           className={`text-3xl font-black tracking-tight sm:text-4xl md:text-5xl ${isDark ? "text-white" : "text-stone-900"}`}
         >
-          Built in the open
+          Built in Public
         </h2>
 
         <div className="mx-auto mt-12 grid max-w-4xl gap-6 sm:grid-cols-3">
