@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Github, Moon, Sun, Terminal } from "lucide-react";
+import { Github, Moon, Sun, Wand2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -33,7 +33,7 @@ export function Navbar({
         aria-label="Go to hero section"
       >
         <div className="rounded-xl bg-blue-600 p-2 shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-transform duration-500 hover:scale-110">
-          <Terminal className="text-white" size={20} />
+          <Wand2 className="text-white" size={20} />
         </div>
         <span
           className={`text-xl font-black tracking-widest uppercase italic transition-colors ${

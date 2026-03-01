@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowDown, Check, Copy, Layers } from "lucide-react";
+import { ArrowDown, ArrowRight, Check, Copy, Layers } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -143,7 +143,7 @@ export function HeroSection({
             }`}
           >
             <Link href={docsHref}>
-              View Docs <ArrowDown className="size-4" />
+              View Docs <ArrowRight className="size-4 transition-transform" />
             </Link>
           </Button>
         </div>
