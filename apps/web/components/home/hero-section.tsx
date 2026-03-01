@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowDown, CheckCheck, Copy, Layers } from "lucide-react";
+import { ArrowDown, Check, Copy, Layers } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -91,17 +91,35 @@ export function HeroSection({
             <button
               type="button"
               onClick={onCopy}
-              className={`group/btn rounded-2xl p-2.5 transition-all hover:text-white ${isDark ? "bg-zinc-800/50 text-zinc-400 hover:bg-blue-600" : "bg-stone-100 text-stone-500 hover:bg-indigo-600"}`}
+              className={`group/btn relative overflow-hidden rounded-2xl p-2.5 transition-all duration-300 ${
+                isCopied
+                  ? isDark
+                    ? "bg-emerald-600/30 text-emerald-400"
+                    : "bg-emerald-100 text-emerald-600"
+                  : isDark
+                    ? "bg-zinc-800/50 text-zinc-400 hover:bg-blue-600 hover:text-white"
+                    : "bg-stone-100 text-stone-500 hover:bg-indigo-600 hover:text-white"
+              }`}
               aria-label="Copy command"
             >
-              {isCopied ? (
-                <CheckCheck size={18} className="text-emerald-400" />
-              ) : (
-                <Copy
-                  size={18}
-                  className="transition-transform group-hover/btn:scale-110"
-                />
-              )}
+              <div
+                className={`absolute inset-0 transition-transform duration-500 ${
+                  isCopied ? "scale-100 opacity-100" : "scale-0 opacity-0"
+                }`}
+              />
+              <div className="relative flex items-center justify-center">
+                {isCopied ? (
+                  <Check
+                    size={18}
+                    className="animate-in zoom-in-0 spin-in-0 duration-300"
+                  />
+                ) : (
+                  <Copy
+                    size={18}
+                    className="transition-transform duration-300 group-hover/btn:scale-110 group-hover/btn:rotate-12"
+                  />
+                )}
+              </div>
             </button>
             <div className="absolute top-0 -left-full h-full w-full skew-x-12 bg-linear-to-r from-transparent via-white/5 to-transparent transition-all duration-1000 group-hover:left-full" />
           </div>
