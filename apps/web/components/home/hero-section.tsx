@@ -30,24 +30,13 @@ export function HeroSection({
           <p
             className={`text-[10px] font-black tracking-[0.2em] uppercase ${isDark ? "text-zinc-500" : "text-stone-500"}`}
           >
-            What You Get
+            Used to scaffold
           </p>
-          <ul
-            className={`mt-4 space-y-3 text-sm ${isDark ? "text-zinc-300" : "text-stone-700"}`}
+          <p
+            className={`mt-2 text-2xl font-black ${isDark ? "text-white" : "text-stone-900"}`}
           >
-            <li className="flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-blue-500" /> REST or
-              WebSocket starter
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-blue-700" /> TS or JS
-              output
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-blue-700" /> DB +
-              Docker options
-            </li>
-          </ul>
+            3+ projects
+          </p>
         </div>
       </aside>
 
@@ -60,19 +49,20 @@ export function HeroSection({
         </div>
 
         <h1
-          className={`text-4xl leading-[0.9] font-black tracking-tighter text-balance sm:text-5xl md:text-7xl lg:text-[100px] ${isDark ? "text-white" : "text-stone-900"}`}
+          className={`text-3xl leading-[0.9] font-black tracking-tighter text-balance sm:text-4xl md:text-5xl lg:text-[70px] ${isDark ? "text-white" : "text-stone-900"}`}
         >
-          READY FOR <br />
+          Generate a{" "}
           <span className="bg-linear-to-b from-blue-400 via-blue-600 to-blue-900 bg-clip-text text-transparent">
-            PRODUCTION.
-          </span>
+            production-ready
+          </span>{" "}
+          backend in one command
         </h1>
 
         <p
           className={`mx-auto mt-6 max-w-2xl text-base leading-relaxed font-medium sm:mt-8 sm:text-lg md:text-xl ${isDark ? "text-zinc-500" : "text-stone-600"}`}
         >
-          Build production-ready Node.js backends in seconds with health checks,
-          error handling, and Docker support.
+          Creates a fully structured Node backend with logging, configs, env
+          setup, and best-practice architecture in seconds.
         </p>
 
         <div className="group relative mx-auto mt-8 max-w-xl sm:mt-12">

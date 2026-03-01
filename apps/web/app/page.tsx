@@ -4,12 +4,16 @@ import { useState } from "react";
 import { useTheme } from "next-themes";
 
 import { BackgroundEffects } from "@/components/home/background-effects";
+import { FinalCTASection } from "@/components/home/final-cta-section";
 import { FlagsSection } from "@/components/home/flags-section";
 import { Footer } from "@/components/home/footer";
-import { GettingStartedSection } from "@/components/home/getting-started-section";
 import { HeroSection } from "@/components/home/hero-section";
 import { Navbar } from "@/components/home/navbar";
+import { ProblemSection } from "@/components/home/problem-section";
+import { ProofSection } from "@/components/home/proof-section";
+import { SolutionSection } from "@/components/home/solution-section";
 import { StacksSection } from "@/components/home/stacks-section";
+import { TrustSignalsSection } from "@/components/home/trust-signals-section";
 
 export default function Home() {
   const command = "npx @dhruvinjs/appinit my-test-app";
@@ -50,6 +54,7 @@ export default function Home() {
         docsHref="/docs"
         docsLabel="Docs"
       />
+      {/* Section 1: Hero */}
       <HeroSection
         isDark={isDark}
         command={command}
@@ -57,9 +62,25 @@ export default function Home() {
         onCopy={handleCopy}
         docsHref="/docs"
       />
-      <GettingStartedSection isDark={isDark} />
+      {/* Section 2: Problem */}
+      <ProblemSection isDark={isDark} />
+      {/* Section 3: Solution */}
+      <SolutionSection isDark={isDark} />
+      {/* Section 4: Proof */}
+      <ProofSection isDark={isDark} />
+      {/* Section 5: What You Get */}
       <StacksSection isDark={isDark} />
+      {/* Section 6: Customization */}
       <FlagsSection isDark={isDark} />
+      {/* Section 7: Trust Signals */}
+      <TrustSignalsSection isDark={isDark} />
+      {/* Section 8: Final CTA */}
+      <FinalCTASection
+        isDark={isDark}
+        command={command}
+        isCopied={isCopied}
+        onCopy={handleCopy}
+      />
       <Footer isDark={isDark} docsHref="/docs" />
     </main>
   );
