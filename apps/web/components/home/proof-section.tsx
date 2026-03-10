@@ -30,19 +30,19 @@ export function ProofSection({ isDark }: ProofSectionProps) {
   return (
     <section
       id="proof"
-      className="relative z-10 mx-auto w-full max-w-350 px-4 py-20 sm:px-6 lg:px-10"
+      className="relative z-10 mx-auto w-full max-w-350 px-[21px] py-[89px] sm:px-[34px] lg:px-[55px]"
     >
       <div className="text-center">
         <h2
-          className={`text-3xl font-black tracking-tight sm:text-4xl md:text-5xl ${isDark ? "text-white" : "text-stone-900"}`}
+          className={`text-[34px] font-black tracking-[-0.02em] sm:text-[55px] ${isDark ? "text-white" : "text-stone-900"}`}
         >
           See what you get
         </h2>
 
-        <div className="mx-auto mt-12 grid max-w-5xl gap-8 lg:grid-cols-2">
+        <div className="mx-auto mt-[55px] grid max-w-5xl gap-[34px] lg:grid-cols-2">
           {/* Project Structure */}
           <div
-            className={`rounded-3xl border p-8 text-left backdrop-blur-xl ${
+            className={`rounded-[34px] border p-[21px] text-left backdrop-blur-xl ${
               isDark
                 ? "border-white/10 bg-zinc-900/60"
                 : "border-stone-200 bg-white/90"
@@ -60,7 +60,7 @@ export function ProofSection({ isDark }: ProofSectionProps) {
               </h3>
             </div>
             <pre
-              className={`overflow-x-auto rounded-xl border p-4 font-mono text-xs leading-relaxed ${
+              className={`overflow-x-auto rounded-[13px] border p-[13px] font-mono text-xs leading-relaxed ${
                 isDark
                   ? "border-zinc-800 bg-black/50 text-zinc-300"
                   : "border-stone-200 bg-stone-50 text-stone-700"
@@ -72,7 +72,7 @@ export function ProofSection({ isDark }: ProofSectionProps) {
 
           {/* Features Included */}
           <div
-            className={`rounded-3xl border p-8 text-left backdrop-blur-xl ${
+            className={`rounded-[34px] border p-[21px] text-left backdrop-blur-xl ${
               isDark
                 ? "border-white/10 bg-zinc-900/60"
                 : "border-stone-200 bg-white/90"
@@ -83,7 +83,7 @@ export function ProofSection({ isDark }: ProofSectionProps) {
             >
               Production Essentials Included
             </h3>
-            <ul className="space-y-4">
+            <ul className="space-y-[13px]">
               {[
                 "Structured logging with Pino",
                 "Environment validation",
@@ -110,7 +110,7 @@ export function ProofSection({ isDark }: ProofSectionProps) {
 
         {/* Timing */}
         <div
-          className={`mx-auto mt-8 inline-flex items-center gap-2 rounded-full border px-6 py-3 backdrop-blur-xl ${
+          className={`mx-auto mt-[34px] inline-flex items-center gap-[13px] rounded-full border px-[21px] py-[13px] backdrop-blur-xl ${
             isDark
               ? "border-emerald-900/50 bg-emerald-950/30 text-emerald-400"
               : "border-emerald-200 bg-emerald-50 text-emerald-700"

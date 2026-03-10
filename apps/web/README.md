@@ -1,6 +1,6 @@
 # AppInit Web Docs (`apps/web`)
 
-Frontend documentation site for `@dhruvinjs/appinit` inside the StackForge monorepo.
+Frontend documentation site for `@dhruvinjs/appinit` inside the AppInit monorepo.
 
 ## Purpose
 

@@ -21,35 +21,18 @@ export function HeroSection({
   return (
     <header
       id="hero"
-      className="relative z-10 mx-auto grid w-full max-w-350 grid-cols-1 gap-6 px-4 pt-10 pb-20 sm:gap-8 sm:px-6 lg:px-10 xl:grid-cols-[1fr_minmax(0,760px)_1fr] xl:pb-40"
+      className="relative z-10 mx-auto grid w-full max-w-350 grid-cols-1 gap-[34px] px-[21px] pt-[55px] pb-[89px] sm:px-[34px] lg:px-[55px] xl:grid-cols-[1.618fr_1fr] xl:items-center xl:gap-[55px] xl:pb-[144px]"
     >
-      <aside className="hidden xl:flex xl:flex-col xl:justify-center">
+      <div className="text-center xl:text-left">
         <div
-          className={`rounded-3xl border p-6 backdrop-blur-xl ${isDark ? "border-white/5 bg-zinc-900/40" : "border-stone-200 bg-white/80"}`}
-        >
-          <p
-            className={`text-[10px] font-black tracking-[0.2em] uppercase ${isDark ? "text-zinc-500" : "text-stone-500"}`}
-          >
-            Used to scaffold
-          </p>
-          <p
-            className={`mt-2 text-2xl font-black ${isDark ? "text-white" : "text-stone-900"}`}
-          >
-            3+ projects
-          </p>
-        </div>
-      </aside>
-
-      <div className="text-center">
-        <div
-          className={`mb-10 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-[10px] font-black tracking-[0.2em] uppercase backdrop-blur-md ${isDark ? "border-zinc-800 bg-zinc-900/50 text-zinc-400" : "border-stone-200 bg-white/85 text-stone-500"}`}
+          className={`mb-[34px] inline-flex items-center gap-2 rounded-full border px-[13px] py-[8px] text-[10px] font-black tracking-[0.2em] uppercase backdrop-blur-md ${isDark ? "border-zinc-800 bg-zinc-900/50 text-zinc-400" : "border-stone-200 bg-white/85 text-stone-500"}`}
         >
           <span className="flex h-2 w-2 animate-ping rounded-full bg-blue-500" />
-          Architect your backend in seconds
+          Initialize your backend in seconds
         </div>
 
         <h1
-          className={`text-3xl leading-[0.9] font-black tracking-tighter text-balance sm:text-4xl md:text-5xl lg:text-[70px] ${isDark ? "text-white" : "text-stone-900"}`}
+          className={`text-[34px] leading-[0.92] font-black tracking-[-0.05em] text-balance sm:text-[55px] lg:text-[70px] ${isDark ? "text-white" : "text-stone-900"}`}
         >
           Generate a{" "}
           <span className="bg-linear-to-b from-blue-400 via-blue-600 to-blue-900 bg-clip-text text-transparent">
@@ -59,66 +42,16 @@ export function HeroSection({
         </h1>
 
         <p
-          className={`mx-auto mt-6 max-w-2xl text-base leading-relaxed font-medium sm:mt-8 sm:text-lg md:text-xl ${isDark ? "text-zinc-500" : "text-stone-600"}`}
+          className={`mx-auto mt-[21px] max-w-2xl text-[14px] leading-relaxed font-medium sm:mt-[34px] sm:text-[16px] md:text-[21px] xl:mx-0 ${isDark ? "text-zinc-500" : "text-stone-600"}`}
         >
           Creates a fully structured Node backend with logging, configs, env
           setup, and best-practice architecture in seconds.
         </p>
 
-        <div className="group relative mx-auto mt-8 max-w-xl sm:mt-12">
-          <div className="absolute -inset-2 rounded-2xl bg-blue-600 opacity-10 blur-2xl transition duration-1000 group-hover:opacity-30" />
-          <div
-            className={`relative flex items-center justify-between overflow-hidden rounded-2xl border p-3 font-mono text-xs shadow-2xl backdrop-blur-2xl transition-colors sm:rounded-3xl sm:p-5 sm:text-sm ${isDark ? "border-white/5 bg-zinc-900/40 group-hover:border-white/10" : "border-stone-200 bg-white/90 group-hover:border-indigo-300"}`}
-          >
-            <div className="flex min-w-0 items-center gap-4">
-              <span className="font-bold text-blue-500 select-none">❯</span>
-              <span
-                className={`truncate tracking-tight ${isDark ? "text-zinc-200" : "text-stone-700"}`}
-              >
-                {command}
-              </span>
-            </div>
-            <button
-              type="button"
-              onClick={onCopy}
-              className={`group/btn relative overflow-hidden rounded-2xl p-2.5 transition-all duration-300 ${
-                isCopied
-                  ? isDark
-                    ? "bg-emerald-600/30 text-emerald-400"
-                    : "bg-emerald-100 text-emerald-600"
-                  : isDark
-                    ? "bg-zinc-800/50 text-zinc-400 hover:bg-blue-600 hover:text-white"
-                    : "bg-stone-100 text-stone-500 hover:bg-indigo-600 hover:text-white"
-              }`}
-              aria-label="Copy command"
-            >
-              <div
-                className={`absolute inset-0 transition-transform duration-500 ${
-                  isCopied ? "scale-100 opacity-100" : "scale-0 opacity-0"
-                }`}
-              />
-              <div className="relative flex items-center justify-center">
-                {isCopied ? (
-                  <Check
-                    size={18}
-                    className="animate-in zoom-in-0 spin-in-0 duration-300"
-                  />
-                ) : (
-                  <Copy
-                    size={18}
-                    className="transition-transform duration-300 group-hover/btn:scale-110 group-hover/btn:rotate-12"
-                  />
-                )}
-              </div>
-            </button>
-            <div className="absolute top-0 -left-full h-full w-full skew-x-12 bg-linear-to-r from-transparent via-white/5 to-transparent transition-all duration-1000 group-hover:left-full" />
-          </div>
-        </div>
-
-        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:mt-10 sm:flex-row">
+        <div className="mt-[34px] flex flex-col items-center justify-center gap-[13px] sm:mt-[55px] sm:flex-row xl:justify-start">
           <Button
             asChild
-            className="w-full border border-blue-800/70 bg-linear-to-r from-blue-950 to-blue-800 px-5 text-white shadow-[0_10px_30px_rgba(15,23,42,0.55)] transition-all hover:-translate-y-0.5 hover:from-blue-900 hover:to-blue-700 hover:shadow-[0_14px_36px_rgba(30,58,138,0.45)] sm:w-auto"
+            className="w-full border border-blue-800/70 bg-linear-to-r from-blue-950 to-blue-800 px-[21px] text-white shadow-[0_10px_30px_rgba(15,23,42,0.55)] transition-all duration-[300ms] hover:-translate-y-0.5 hover:from-blue-900 hover:to-blue-700 hover:shadow-[0_14px_36px_rgba(30,58,138,0.45)] active:translate-y-0 sm:w-auto"
           >
             <a href="#flags">
               View Flags <ArrowDown className="size-4" />
@@ -126,7 +59,7 @@ export function HeroSection({
           </Button>
           <Button
             asChild
-            className={`w-full border px-5 shadow-lg transition-all hover:-translate-y-0.5 sm:w-auto ${
+            className={`w-full border px-[21px] shadow-lg transition-all duration-[300ms] hover:-translate-y-0.5 active:translate-y-0 sm:w-auto ${
               isDark
                 ? "border-white/10 bg-zinc-900/60 text-white hover:border-white/20 hover:bg-zinc-800/80"
                 : "border-stone-300 bg-white text-stone-900 hover:border-stone-400 hover:bg-stone-100"
@@ -139,30 +72,72 @@ export function HeroSection({
         </div>
       </div>
 
-      <aside className="hidden xl:flex xl:flex-col xl:justify-center">
-        <div
-          className={`rounded-3xl border p-6 backdrop-blur-xl ${isDark ? "border-white/5 bg-zinc-900/40" : "border-stone-200 bg-white/80"}`}
-        >
-          <p
-            className={`text-[10px] font-black tracking-[0.2em] uppercase ${isDark ? "text-zinc-500" : "text-stone-500"}`}
-          >
-            Best For
-          </p>
-          <div
-            className={`mt-4 space-y-3 text-sm ${isDark ? "text-zinc-300" : "text-stone-700"}`}
-          >
-            <p className="flex items-center gap-2">
-              <Layers className="size-4 text-blue-400" /> MVP APIs
-            </p>
-            <p className="flex items-center gap-2">
-              <Layers className="size-4 text-blue-600" /> Realtime services
-            </p>
-            <p className="flex items-center gap-2">
-              <Layers className="size-4 text-blue-800" /> Team starter repos
-            </p>
+      <div className="relative mx-auto w-full max-w-2xl xl:max-w-none">
+          {/* CLI Focal Window */}
+          <div className="pointer-events-none absolute -inset-[21px] rounded-[34px] bg-cyan-500/10 blur-[80px]" />
+          <div className="pointer-events-none absolute -right-[13px] -top-[13px] h-[89px] w-[144px] rounded-full bg-violet-500/10 blur-[60px]" />
+          <div className="group relative">
+            <div
+              className={`absolute -inset-2 rounded-[34px] opacity-20 blur-3xl transition duration-[700ms] group-hover:opacity-35 ${isDark ? "bg-cyan-500/30" : "bg-indigo-300/60"}`}
+            />
+            <div
+              className={`relative overflow-hidden rounded-[34px] border p-[21px] text-left font-mono text-xs shadow-2xl backdrop-blur-2xl transition-colors sm:p-[34px] sm:text-sm ${isDark ? "border-white/10 bg-zinc-900/50" : "border-stone-200 bg-white/95"}`}
+            >
+              <div className="mb-[13px] flex items-center gap-[13px]">
+                <div className="flex items-center gap-[8px]">
+                  <span className="h-[8px] w-[8px] rounded-full bg-red-500/70" />
+                  <span className="h-[8px] w-[8px] rounded-full bg-yellow-400/70" />
+                  <span className="h-[8px] w-[8px] rounded-full bg-emerald-400/70" />
+                </div>
+                <span className={`text-[10px] tracking-[0.2em] uppercase ${isDark ? "text-zinc-500" : "text-stone-500"}`}>
+                  AppInit CLI
+                </span>
+              </div>
+              <div className="flex items-center justify-between gap-[13px]">
+                <div className="min-w-0">
+                  <div className={`text-[10px] ${isDark ? "text-zinc-500" : "text-stone-500"}`}>Terminal</div>
+                  <div className={`mt-[8px] flex items-center gap-[13px] ${isDark ? "text-zinc-200" : "text-stone-700"}`}>
+                    <span className="font-bold text-cyan-400 select-none">❯</span>
+                    <span className="truncate tracking-tight">{command}</span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={onCopy}
+                  className={`group/btn relative shrink-0 overflow-hidden rounded-[13px] p-2.5 transition-all duration-[160ms] active:scale-105 ${
+                    isCopied
+                      ? isDark
+                        ? "bg-emerald-600/30 text-emerald-400"
+                        : "bg-emerald-100 text-emerald-600"
+                      : isDark
+                        ? "bg-zinc-800/50 text-zinc-400 hover:bg-cyan-500 hover:text-white"
+                        : "bg-stone-100 text-stone-500 hover:bg-indigo-600 hover:text-white"
+                  }`}
+                  aria-label="Copy command"
+                >
+                  <div className="relative flex items-center justify-center">
+                    {isCopied ? (
+                      <Check
+                        size={18}
+                        className="animate-in zoom-in-0 spin-in-0 duration-300"
+                      />
+                    ) : (
+                      <Copy
+                        size={18}
+                        className="transition-transform duration-300 group-hover/btn:scale-110 group-hover/btn:rotate-12"
+                      />
+                    )}
+                  </div>
+                </button>
+              </div>
+              <div className="mt-[13px] grid gap-[8px] text-[10px]">
+                <span className={`${isDark ? "text-zinc-500" : "text-stone-500"}`}>✔ Templates: Express + WebSockets</span>
+                <span className={`${isDark ? "text-zinc-500" : "text-stone-500"}`}>✔ Language: TypeScript or JavaScript</span>
+              </div>
+              <div className="absolute top-0 -left-full h-full w-full skew-x-12 bg-linear-to-r from-transparent via-white/5 to-transparent transition-all duration-1000 group-hover:left-full" />
+            </div>
           </div>
         </div>
-      </aside>
     </header>
   );
 }

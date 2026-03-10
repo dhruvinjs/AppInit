@@ -183,7 +183,7 @@ function CodePreview({
   return (
     <div className="flex-1 flex flex-col bg-[#111111] border border-zinc-800/50 rounded-xl overflow-hidden shadow-2xl">
       {/* Header */}
-      <div className="h-12 border-b border-zinc-800/50 bg-[#141414] px-4 flex items-center">
+      <div className="h-12 border-b border-zinc-800/50 bg-gradient-to-b from-[#151515] to-[#101010] px-4 flex items-center">
         <div className="flex items-center gap-2">
           <FileCode size={14} className="text-zinc-500" />
           <span className="text-xs font-mono text-zinc-400">
@@ -246,8 +246,8 @@ function CodePreview({
             <code>{fileContent}</code>
           </pre>
         ) : (
-          <div className="flex flex-col items-center text-center opacity-40">
-            <div className="w-16 h-16 rounded-full bg-zinc-800 flex items-center justify-center mb-4">
+          <div className="flex flex-col items-center text-center opacity-50">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-zinc-800 to-zinc-900 flex items-center justify-center mb-4 ring-1 ring-white/5">
               <FileText size={32} />
             </div>
             <h4 className="text-lg font-medium text-white">No file selected</h4>
@@ -282,7 +282,7 @@ function TemplateViewer({
     <div className="flex gap-6 h-full">
       {/* File Tree Explorer */}
       <div className="w-80 flex flex-col bg-[#111111] border border-zinc-800/50 rounded-xl overflow-hidden shadow-2xl">
-        <div className="p-4 border-b border-zinc-800/50 flex items-center justify-between bg-[#141414]">
+        <div className="p-4 border-b border-zinc-800/50 flex items-center justify-between bg-gradient-to-b from-[#151515] to-[#101010]">
           <div>
             <h3 className="text-sm font-semibold text-white">Files</h3>
             <p className="text-[10px] text-zinc-500">Project structure</p>
@@ -564,7 +564,7 @@ export function DocsContent({
       return {
         title: "Database Support",
         description:
-          `StackForge includes built-in support for MongoDB (with Mongoose) and PostgreSQL (with Prisma). Configuration files for ${activeTab === "typescript" ? "TypeScript" : "JavaScript"} shown below. The database setup dynamically adapts based on your selection during project initialization.`,
+          `AppInit includes built-in support for MongoDB (with Mongoose) and PostgreSQL (with Prisma). Configuration files for ${activeTab === "typescript" ? "TypeScript" : "JavaScript"} shown below. The database setup dynamically adapts based on your selection during project initialization.`,
         features: [
           "MongoDB with Mongoose ORM",
           "PostgreSQL with Prisma ORM",
@@ -608,13 +608,25 @@ export function DocsContent({
     <div className="h-full flex flex-col gap-6">
       {/* Section Info */}
       {sectionInfo && (
-        <div className="bg-[#111111] border border-zinc-800/50 rounded-xl p-6">
+        <div className="bg-[#111111]/80 border border-zinc-800/50 rounded-xl p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
           <h2 className="text-xl font-bold text-white mb-2">
             {sectionInfo.title}
           </h2>
           <p className="text-zinc-400 text-sm">
             {sectionInfo.description}
           </p>
+          {sectionInfo.features && sectionInfo.features.length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {sectionInfo.features.map((feature) => (
+                <span
+                  key={feature}
+                  className="text-[10px] uppercase tracking-wider text-zinc-300 bg-zinc-900/70 border border-zinc-800/60 px-2 py-1 rounded-md"
+                >
+                  {feature}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

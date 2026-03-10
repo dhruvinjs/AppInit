@@ -20,7 +20,7 @@ export function Navbar({
 }: NavbarProps) {
   return (
     <nav
-      className={`sticky top-4 z-30 mx-auto flex w-[calc(100%-1.5rem)] max-w-350 items-center justify-between rounded-2xl border px-6 py-4 shadow-lg backdrop-blur-xl transition-colors duration-500 lg:px-10 ${
+      className={`sticky top-4 z-30 mx-auto flex w-[calc(100%-1.5rem)] max-w-350 items-center justify-between rounded-[21px] border px-[21px] py-[13px] shadow-lg backdrop-blur-xl transition-colors duration-500 lg:px-[34px] ${
         isDark
           ? "border-white/10 bg-black/75 shadow-blue-900/20"
           : "border-stone-200 bg-white/90 shadow-stone-300/50"
@@ -37,7 +37,7 @@ export function Navbar({
             <Wand2 className="text-white" size={20} />
           </div>
           <span
-            className={`text-xl font-black tracking-widest uppercase italic transition-colors ${
+            className={`text-[21px] font-black tracking-widest uppercase italic transition-colors ${
               isDark ? "text-white" : "text-stone-900"
             }`}
           >
@@ -47,7 +47,7 @@ export function Navbar({
 
         <Link
           href="/docs"
-          className={`hidden text-sm font-semibold tracking-wide transition-colors md:inline ${
+          className={`hidden text-[13px] font-semibold tracking-wide transition-colors md:inline ${
             isDark
               ? "text-zinc-400 hover:text-white"
               : "text-stone-600 hover:text-stone-900"

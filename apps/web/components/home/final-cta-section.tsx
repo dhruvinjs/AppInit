@@ -16,32 +16,32 @@ export function FinalCTASection({
   return (
     <section
       id="final-cta"
-      className="relative z-10 mx-auto w-full max-w-350 px-4 py-32 sm:px-6 lg:px-10"
+      className="relative z-10 mx-auto w-full max-w-350 px-[21px] py-[89px] sm:px-[34px] lg:px-[55px]"
     >
       <div className="text-center">
         <h2
-          className={`text-4xl font-black tracking-tight sm:text-5xl md:text-6xl ${isDark ? "text-white" : "text-stone-900"}`}
+          className={`text-[34px] font-black tracking-[-0.02em] sm:text-[55px] ${isDark ? "text-white" : "text-stone-900"}`}
         >
           Ready to build?
         </h2>
 
         <p
-          className={`mx-auto mt-6 max-w-xl text-lg sm:text-xl ${isDark ? "text-zinc-400" : "text-stone-600"}`}
+          className={`mx-auto mt-[21px] max-w-xl text-[16px] sm:text-[21px] ${isDark ? "text-zinc-400" : "text-stone-600"}`}
         >
           Get started in seconds. No registration required.
         </p>
 
-        <div className="group relative mx-auto mt-12 max-w-2xl">
-          <div className="absolute -inset-3 rounded-3xl bg-blue-600 opacity-20 blur-3xl transition duration-1000 group-hover:opacity-40" />
+        <div className="group relative mx-auto mt-[55px] max-w-2xl">
+          <div className="absolute -inset-3 rounded-[34px] bg-blue-600 opacity-20 blur-3xl transition duration-1000 group-hover:opacity-40" />
           <div
-            className={`relative flex items-center justify-between overflow-hidden rounded-3xl border p-6 shadow-2xl backdrop-blur-2xl transition-colors sm:p-8 ${isDark ? "border-white/10 bg-zinc-900/60 group-hover:border-white/20" : "border-stone-200 bg-white/95 group-hover:border-indigo-300"}`}
+            className={`relative flex items-center justify-between overflow-hidden rounded-[34px] border p-[21px] shadow-2xl backdrop-blur-2xl transition-colors sm:p-[34px] ${isDark ? "border-white/10 bg-zinc-900/60 group-hover:border-white/20" : "border-stone-200 bg-white/95 group-hover:border-indigo-300"}`}
           >
             <div className="flex min-w-0 items-center gap-4">
               <span className="hidden font-bold text-blue-500 select-none sm:inline">
                 ❯
               </span>
               <span
-                className={`truncate font-mono text-lg tracking-tight sm:text-2xl ${isDark ? "text-zinc-200" : "text-stone-700"}`}
+                className={`truncate font-mono text-[16px] tracking-tight sm:text-[26px] ${isDark ? "text-zinc-200" : "text-stone-700"}`}
               >
                 {command}
               </span>
@@ -49,7 +49,7 @@ export function FinalCTASection({
             <button
               type="button"
               onClick={onCopy}
-              className={`group/btn relative shrink-0 overflow-hidden rounded-2xl p-3 transition-all duration-300 sm:p-4 ${
+              className={`group/btn relative shrink-0 overflow-hidden rounded-[13px] p-3 transition-all duration-[160ms] active:scale-105 sm:p-4 ${
                 isCopied
                   ? isDark
                     ? "bg-emerald-600/30 text-emerald-400"
