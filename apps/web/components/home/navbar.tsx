@@ -26,25 +26,38 @@ export function Navbar({
           : "border-stone-200 bg-white/90 shadow-stone-300/50"
       }`}
     >
-      <button
-        type="button"
-        className="flex cursor-pointer items-center gap-3"
-        onClick={() => onScrollToSection("hero")}
-        aria-label="Go to hero section"
-      >
-        <div className="rounded-xl bg-blue-600 p-2 shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-transform duration-500 hover:scale-110">
-          <Wand2 className="text-white" size={20} />
-        </div>
-        <span
-          className={`text-xl font-black tracking-widest uppercase italic transition-colors ${
-            isDark ? "text-white" : "text-stone-900"
+      <div className="flex items-center gap-6">
+        <button
+          type="button"
+          className="flex cursor-pointer items-center gap-3"
+          onClick={() => onScrollToSection("hero")}
+          aria-label="Go to hero section"
+        >
+          <div className="rounded-xl bg-blue-600 p-2 shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-transform duration-500 hover:scale-110">
+            <Wand2 className="text-white" size={20} />
+          </div>
+          <span
+            className={`text-xl font-black tracking-widest uppercase italic transition-colors ${
+              isDark ? "text-white" : "text-stone-900"
+            }`}
+          >
+            APPINIT
+          </span>
+        </button>
+
+        <Link
+          href="/docs"
+          className={`hidden text-sm font-semibold tracking-wide transition-colors md:inline ${
+            isDark
+              ? "text-zinc-400 hover:text-white"
+              : "text-stone-600 hover:text-stone-900"
           }`}
         >
-          APPINIT
-        </span>
-      </button>
+          Docs
+        </Link>
+      </div>
 
-      <div className="flex items-center gap-2 md:gap-6">
+      <div className="flex items-center gap-2 md:gap-4">
         <Button
           variant="outline"
           size="icon"
@@ -53,16 +66,6 @@ export function Navbar({
         >
           {isDark ? <Sun size={16} /> : <Moon size={16} />}
         </Button>
-        <Link
-          href="/docs"
-          className={`hidden text-xs font-bold tracking-widest uppercase transition-colors md:inline ${
-            isDark
-              ? "text-zinc-500 hover:text-white"
-              : "text-stone-500 hover:text-stone-900"
-          }`}
-        >
-          Docs
-        </Link>
         <Button
           asChild
           className="rounded-full bg-white px-6 py-2.5 text-black hover:bg-blue-500 hover:text-white"
