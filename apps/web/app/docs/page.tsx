@@ -2,10 +2,9 @@
 
 import Link from "next/link";
 import { useTheme } from "next-themes";
+import { ChevronRight } from "lucide-react";
 
 import { DocsContent } from "@/components/docs/docs-content";
-import { BackgroundEffects } from "@/components/home/background-effects";
-import { Footer } from "@/components/home/footer";
 import { Navbar } from "@/components/home/navbar";
 
 export default function DocsPage() {
@@ -22,156 +21,111 @@ export default function DocsPage() {
   };
 
   return (
-    <main
-      className={`min-h-screen transition-colors duration-700 selection:bg-blue-500/30 selection:text-white ${
-        isDark ? "bg-black text-zinc-300" : "bg-stone-50 text-stone-700"
-      }`}
-    >
-      <BackgroundEffects isDark={isDark} />
+    <div className={`relative min-h-screen ${isDark ? "bg-zinc-950" : "bg-white"}`}>
       <Navbar
         isDark={isDark}
         onToggleTheme={() => setTheme(isDark ? "light" : "dark")}
         onScrollToSection={scrollToSection}
-        docsHref="#docs-content"
+        docsHref="/docs"
         docsLabel="Docs"
       />
 
-      <section
-        id="hero"
-        className="relative z-10 mx-auto w-full max-w-350 px-4 pt-20 pb-16 sm:px-6 lg:px-10"
-      >
-        <div className="mb-8 flex justify-start">
-          <Link
-            href="/"
-            className={`inline-flex items-center gap-2 rounded-xl border px-5 py-2.5 text-sm font-semibold shadow-lg transition-all hover:-translate-y-0.5 hover:scale-105 ${
-              isDark
-                ? "border-blue-800/70 bg-linear-to-r from-blue-950 to-blue-800 text-white shadow-blue-900/30 hover:from-blue-900 hover:to-blue-700 hover:shadow-blue-800/40"
-                : "border-blue-600/70 bg-linear-to-r from-blue-600 to-blue-700 text-white shadow-blue-500/30 hover:from-blue-700 hover:to-blue-800 hover:shadow-blue-600/40"
-            }`}
-          >
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+      <div className={`border-b ${isDark ? "border-white/5" : "border-stone-200"}`}>
+        <div className="mx-auto w-full max-w-350 px-6 py-8 lg:px-10">
+          <div className="mb-4 flex items-center space-x-1 text-sm">
+            <Link
+              href="/"
+              className={`transition-colors ${isDark ? "text-zinc-400 hover:text-white" : "text-stone-600 hover:text-stone-900"}`}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M10 19l-7-7m0 0l7-7m-7 7h18"
-              />
-            </svg>
-            Back to Home
-          </Link>
-        </div>
-
-        <div className="text-center">
-          <h1
-            className={`mt-4 text-4xl font-black tracking-tighter sm:text-5xl lg:text-7xl ${
-              isDark ? "text-white" : "text-stone-900"
-            }`}
-          >
-            Template
-            <span
-              className={`block ${isDark ? "text-blue-400" : "text-blue-600"}`}
-            >
-              Documentation
-            </span>
-          </h1>
-
-          <p
-            className={`mx-auto mt-6 max-w-2xl text-base leading-relaxed sm:text-lg ${
-              isDark ? "text-zinc-400" : "text-stone-600"
-            }`}
-          >
-            Explore the real template files from the{" "}
-            <code
-              className={`rounded px-1.5 py-0.5 font-mono text-sm ${
-                isDark
-                  ? "bg-zinc-800 text-blue-400"
-                  : "bg-stone-100 text-blue-600"
-              }`}
-            >
-              appinit-templates
-            </code>{" "}
-            package. See exactly what gets scaffolded when you create a new
-            project.
-          </p>
-
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-2 text-sm sm:mt-10 sm:gap-3">
-            <div
-              className={`flex items-center gap-2 rounded-lg border px-4 py-2 ${
-                isDark
-                  ? "border-white/10 bg-zinc-900/40"
-                  : "border-stone-200 bg-white/60"
-              }`}
-            >
-              <svg
-                className="h-4 w-4 text-green-500"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <span className={isDark ? "text-zinc-300" : "text-stone-700"}>
-                TypeScript & JavaScript
-              </span>
-            </div>
-            <div
-              className={`flex items-center gap-2 rounded-lg border px-4 py-2 ${
-                isDark
-                  ? "border-white/10 bg-zinc-900/40"
-                  : "border-stone-200 bg-white/60"
-              }`}
-            >
-              <svg
-                className="h-4 w-4 text-green-500"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <span className={isDark ? "text-zinc-300" : "text-stone-700"}>
-                REST API & WebSockets
-              </span>
-            </div>
-            <div
-              className={`flex items-center gap-2 rounded-lg border px-4 py-2 ${
-                isDark
-                  ? "border-white/10 bg-zinc-900/40"
-                  : "border-stone-200 bg-white/60"
-              }`}
-            >
-              <svg
-                className="h-4 w-4 text-green-500"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <span className={isDark ? "text-zinc-300" : "text-stone-700"}>
-                Docker & Database
-              </span>
-            </div>
+              Home
+            </Link>
+            <ChevronRight className="h-4 w-4" />
+            <span className={isDark ? "text-white" : "text-stone-900"}>Documentation</span>
           </div>
+          <h1 className={`scroll-m-20 text-4xl font-bold tracking-tight ${isDark ? "text-white" : "text-stone-900"}`}>
+            Documentation
+          </h1>
+          <p className={`mt-2 text-lg ${isDark ? "text-zinc-400" : "text-stone-600"}`}>
+            Express backend starter with optional WebSocket, DB, and Docker support.
+          </p>
         </div>
-      </section>
+      </div>
 
-      <DocsContent isDark={isDark} />
-      <Footer isDark={isDark} docsHref="#docs-content" />
-    </main>
+      <div className="mx-auto flex w-full max-w-350 gap-8 px-6 py-8 lg:gap-10 lg:px-10">
+        {/* Sidebar Navigation */}
+        <aside className="hidden w-56 shrink-0 md:block">
+          <div className="sticky top-20 space-y-6">
+            <nav className="space-y-4">
+              <div>
+                <h4 className={`mb-3 px-2 text-xs font-semibold tracking-wide uppercase ${isDark ? "text-zinc-400" : "text-stone-600"}`}>
+                  Getting Started
+                </h4>
+                <div className="space-y-1">
+                  <NavLink href="/docs#installation" isDark={isDark}>
+                    Installation
+                  </NavLink>
+                  <NavLink href="/docs#quick-start" isDark={isDark}>
+                    Quick Start
+                  </NavLink>
+                </div>
+              </div>
+
+              <div>
+                <h4 className={`mb-3 px-2 text-xs font-semibold tracking-wide uppercase ${isDark ? "text-zinc-400" : "text-stone-600"}`}>
+                  Templates
+                </h4>
+                <div className="space-y-1">
+                  <NavLink href="/docs#typescript" isDark={isDark}>
+                    TypeScript
+                  </NavLink>
+                  <NavLink href="/docs#javascript" isDark={isDark}>
+                    JavaScript
+                  </NavLink>
+                  <NavLink href="/docs#websockets" isDark={isDark}>
+                    WebSockets
+                  </NavLink>
+                </div>
+              </div>
+
+              <div>
+                <h4 className={`mb-3 px-2 text-xs font-semibold tracking-wide uppercase ${isDark ? "text-zinc-400" : "text-stone-600"}`}>
+                  Features
+                </h4>
+                <div className="space-y-1">
+                  <NavLink href="/docs#database" isDark={isDark}>
+                    Database Support
+                  </NavLink>
+                  <NavLink href="/docs#docker" isDark={isDark}>
+                    Docker
+                  </NavLink>
+                </div>
+              </div>
+            </nav>
+          </div>
+        </aside>
+
+        {/* Main Content */}
+        <main className="flex-1">
+          <div className="pb-12">
+            <DocsContent isDark={isDark} />
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+}
+
+function NavLink({ href, isDark, children }: { href: string; isDark: boolean; children: React.ReactNode }) {
+  return (
+    <Link
+      href={href}
+      className={`block rounded-md px-2 py-1.5 text-sm transition-colors ${
+        isDark
+          ? "text-zinc-400 hover:bg-zinc-900 hover:text-white"
+          : "text-stone-600 hover:bg-stone-100 hover:text-stone-900"
+      }`}
+    >
+      {children}
+    </Link>
   );
 }
