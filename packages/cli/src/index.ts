@@ -50,7 +50,7 @@ function validateRawFlags(args: string[]) {
 
 program
   .name("appinit")
-  .description("Generate production-ready backend projects")
+  .description("Express backend starter with optional WebSocket, DB, and Docker support.")
   .version("1.0.0")
   .argument("[projectName]", "Project name (optional). Prompts if omitted.")
   // Preset flags
@@ -189,6 +189,28 @@ Examples:
             `❌ Error: Invalid package manager "${options.pm}". Use: npm, pnpm, or yarn`,
           );
           process.exit(1);
+        }
+
+        // Check if the specified package manager is installed
+        if (!(await isToolInstalled(options.pm))) {
+          const fallbackPm = await inquirer.prompt([
+            {
+              type: "confirm",
+              name: "useFallback",
+              message: `⚠️  Package manager "${options.pm}" is not installed. Would you like to use npm instead?`,
+              default: true,
+            },
+          ]);
+
+          if (!fallbackPm.useFallback) {
+            console.log(
+              "❌ Cancelled: Please install the required package manager and try again.",
+            );
+            process.exit(0);
+          }
+
+          // Use npm as fallback
+          options.pm = "npm";
         }
       }
 
@@ -355,6 +377,27 @@ Examples:
         );
       }
 
+      let resolvedPm = options.pm || fullConfig.packageManager || "npm";
+      if (!(await isToolInstalled(resolvedPm))) {
+        const fallbackPm = await inquirer.prompt([
+          {
+            type: "confirm",
+            name: "useFallback",
+            message: `Package manager "${resolvedPm}" is not installed. Would you like to use npm instead?`,
+            default: true,
+          },
+        ]);
+
+        if (!fallbackPm.useFallback) {
+          console.log(
+            "❌ Cancelled: Please install the required package manager and try again.",
+          );
+          process.exit(0);
+        }
+
+        resolvedPm = "npm";
+      }
+
       await setup_restApi_project({
         db: fullConfig.database as "mongo" | "postgresql_prisma" | "none",
         path: project_path,
@@ -364,7 +407,7 @@ Examples:
         websocket_package: fullConfig.websocket_package,
         Dockerfile: fullConfig.docker,
         skipGit: options.git === false,
-        packageManager: options.pm || fullConfig.packageManager || "npm",
+        packageManager: resolvedPm,
       });
     } catch (error) {
       if (error instanceof Error) {

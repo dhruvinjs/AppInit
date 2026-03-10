@@ -1,7 +1,7 @@
 # appinit
 
-appinit is an opinionated, high-performance CLI tool designed to scaffold production-ready Node.js backends. It automates project structure, database setup, and runtime essentials so you can go from idea to initial commit quickly.
-
+Express backend starter with optional WebSocket, DB, and Docker support.
+It automates project structure, database setup, and runtime essentials so you can go from idea to initial commit quickly.
 This repository is a monorepo containing the CLI and a web app that showcases or supports it.
 
 ## Features

@@ -1,6 +1,6 @@
 # @dhruvinjs/appinit
 
-Backend project generator CLI.
+Express backend starter with optional WebSocket, DB, and Docker support.
 
 This package creates an Express-based backend starter with optional WebSocket support (`ws` or `socket.io`), optional DB setup (`mongo` or `postgresql_prisma`), and optional Dockerfile generation.
 

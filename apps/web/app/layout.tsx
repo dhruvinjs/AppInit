@@ -16,7 +16,7 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: "APPINIT",
-  description: "Scaffold production-ready Node.js backends in seconds.",
+  description: "Express backend starter with optional WebSocket, DB, and Docker support.",
 };
 
 export default function RootLayout({

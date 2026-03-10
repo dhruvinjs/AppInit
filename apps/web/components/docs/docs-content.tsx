@@ -1,26 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MDXRemote } from "next-mdx-remote";
+import { motion, AnimatePresence } from "framer-motion";
+import { codeToHtml } from "shiki";
 import { serialize } from "next-mdx-remote/serialize";
+import { MDXRemote } from "next-mdx-remote";
 import type { MDXRemoteSerializeResult } from "next-mdx-remote";
 import remarkGfm from "remark-gfm";
 import rehypePrettyCode from "rehype-pretty-code";
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { codeToHtml } from "shiki";
+  ChevronRight,
+  ChevronDown,
+  Folder,
+  FileText,
+  FileCode,
+  Settings,
+} from "lucide-react";
 
 type ManifestFile = {
   path: string;
@@ -55,58 +50,120 @@ function removeEjsExtension(filename: string): string {
   return filename.replace(/\.ejs$/, "");
 }
 
+// Tree item component for file/folder display
+function TreeItem({
+  item,
+  depth = 0,
+  onSelect,
+  selectedId,
+}: {
+  item: {
+    id: string;
+    name: string;
+    type: "file" | "folder";
+    children?: ManifestFile[];
+  };
+  depth?: number;
+  onSelect: (file: ManifestFile) => void;
+  selectedId: string;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const isFolder = item.type === "folder";
+  const isSelected = selectedId === item.id;
+
+  const toggleOpen = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isFolder) {
+      setIsOpen(!isOpen);
+    } else if ('path' in item && 'targetPath' in item) {
+      onSelect(item as ManifestFile);
+    }
+  };
+
+  return (
+    <div className="select-none">
+      <motion.div
+        whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.03)" }}
+        onClick={toggleOpen}
+        className={`flex items-center py-2 px-3 rounded-md cursor-pointer transition-colors ${
+          isSelected
+            ? "bg-blue-500/20 text-blue-400"
+            : "text-zinc-400 hover:text-zinc-200"
+        }`}
+        style={{ paddingLeft: `${depth * 16 + 12}px` }}
+      >
+        <span className="mr-2">
+          {isFolder ? (
+            isOpen ? (
+              <ChevronDown size={16} />
+            ) : (
+              <ChevronRight size={16} />
+            )
+          ) : (
+            <FileText
+              size={16}
+              className={isSelected ? "text-blue-400" : "text-zinc-500"}
+            />
+          )}
+        </span>
+        {isFolder && <Folder size={16} className="mr-2 text-amber-400/80" />}
+        <span className="text-sm font-medium">{item.name}</span>
+      </motion.div>
+
+      <AnimatePresence>
+        {isFolder && isOpen && item.children && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden"
+          >
+            {item.children.map((child) => (
+              <TreeItem
+                key={child.path}
+                item={{
+                  ...child,
+                  id: child.path,
+                  name: removeEjsExtension(child.name),
+                  type: "file" as const,
+                }}
+                depth={depth + 1}
+                onSelect={onSelect}
+                selectedId={selectedId}
+              />
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 function FileExplorer({
   sections,
   selectedPath,
   onSelect,
-  isDark,
 }: {
   sections: ManifestSection[];
   selectedPath: string;
   onSelect: (file: ManifestFile) => void;
-  isDark: boolean;
 }) {
   return (
-    <Accordion type="single" collapsible className="w-full">
+    <div className="space-y-1">
       {sections.map((section) => (
-        <AccordionItem key={section.id} value={section.id}>
-          <AccordionTrigger
-            className={`text-sm font-semibold ${isDark ? "text-zinc-200" : "text-stone-900"}`}
-          >
-            {section.title}
-          </AccordionTrigger>
-          <AccordionContent>
-            <div className="space-y-1 pl-2">
-              {section.files.map((file) => (
-                <button
-                  key={file.path}
-                  type="button"
-                  onClick={() => onSelect(file)}
-                  className={`block w-full rounded-md px-3 py-2 text-left text-xs transition-colors ${
-                    selectedPath === file.path
-                      ? isDark
-                        ? "bg-blue-950/60 text-blue-300"
-                        : "bg-blue-50 text-blue-700"
-                      : isDark
-                        ? "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200"
-                        : "text-stone-600 hover:bg-stone-100 hover:text-stone-900"
-                  }`}
-                >
-                  <div className="font-mono">
-                    {removeEjsExtension(file.name)}
-                  </div>
-                  <div
-                    className={`mt-0.5 text-[10px] ${isDark ? "text-zinc-500" : "text-stone-500"}`}
-                  >
-                    → {file.targetPath}
-                  </div>
-                </button>
-              ))}
-            </div>
-          </AccordionContent>
-        </AccordionItem>
+        <TreeItem
+          key={section.id}
+          item={{
+            id: section.id,
+            name: section.title,
+            type: "folder",
+            children: section.files,
+          }}
+          onSelect={onSelect}
+          selectedId={selectedPath}
+        />
       ))}
-    </Accordion>
+    </div>
   );
 }
 
@@ -115,87 +172,45 @@ function CodePreview({
   highlightedCode,
   fileContent,
   isLoadingContent,
-  isDark,
   mdxSource,
 }: {
   selectedFile: ManifestFile | null;
   highlightedCode: string;
   fileContent: string;
   isLoadingContent: boolean;
-  isDark: boolean;
   mdxSource: MDXRemoteSerializeResult | null;
 }) {
   return (
-    <Card
-      className={`h-fit ${
-        isDark ? "border-white/10 bg-zinc-950" : "border-stone-200 bg-stone-50"
-      }`}
-    >
-      <CardHeader
-        className="border-b pb-4"
-        style={{
-          borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
-        }}
-      >
-        <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0 flex-1">
-            <CardTitle className="flex items-center gap-2 truncate font-mono text-sm">
-              <svg
-                className="h-4 w-4 shrink-0"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-                />
-              </svg>
-              {selectedFile
-                ? removeEjsExtension(selectedFile.name)
-                : "No file selected"}
-            </CardTitle>
-            {selectedFile && (
-              <CardDescription className="mt-1.5 flex items-center gap-1.5 font-mono text-[11px]">
-                <svg
-                  className="h-3 w-3"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 7l5 5m0 0l-5 5m5-5H6"
-                  />
-                </svg>
-                {selectedFile.targetPath}
-              </CardDescription>
-            )}
-          </div>
+    <div className="flex-1 flex flex-col bg-[#111111] border border-zinc-800/50 rounded-xl overflow-hidden shadow-2xl">
+      {/* Header */}
+      <div className="h-12 border-b border-zinc-800/50 bg-[#141414] px-4 flex items-center">
+        <div className="flex items-center gap-2">
+          <FileCode size={14} className="text-zinc-500" />
+          <span className="text-xs font-mono text-zinc-400">
+            {selectedFile
+              ? removeEjsExtension(selectedFile.name)
+              : "Select a file to view code"}
+          </span>
           {selectedFile && (
-            <span
-              className={`shrink-0 rounded-md border px-2.5 py-1 text-[10px] font-semibold tracking-wider uppercase ${
-                isDark
-                  ? "border-white/20 bg-zinc-900 text-zinc-400"
-                  : "border-stone-300 bg-white text-stone-600"
-              }`}
-            >
-              {languageFromPath(selectedFile.path)}
-            </span>
+            <>
+              <span className="text-zinc-700">→</span>
+              <span className="text-[10px] font-mono text-zinc-500">
+                {selectedFile.targetPath}
+              </span>
+            </>
           )}
         </div>
-      </CardHeader>
-      <CardContent className="p-0">
+        {selectedFile && (
+          <span className="ml-auto shrink-0 rounded px-2 py-0.5 text-[9px] font-semibold tracking-wide uppercase bg-blue-950 text-blue-300">
+            {languageFromPath(selectedFile.path)}
+          </span>
+        )}
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 relative flex items-center justify-center overflow-auto">
         {isLoadingContent ? (
-          <div
-            className={`flex items-center justify-center p-12 text-sm ${
-              isDark ? "text-zinc-400" : "text-stone-600"
-            }`}
-          >
+          <div className="flex items-center text-zinc-400 text-sm">
             <svg
               className="mr-2 h-4 w-4 animate-spin"
               fill="none"
@@ -215,64 +230,97 @@ function CodePreview({
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               ></path>
             </svg>
-            Loading file content...
+            Loading...
           </div>
         ) : selectedFile && mdxSource ? (
-          <div
-            className={`prose max-h-[calc(100vh-280px)] max-w-none overflow-auto px-8 py-6 ${
-              isDark ? "prose-invert" : ""
-            }`}
-          >
+          <div className="w-full h-full prose prose-invert max-w-none overflow-auto px-6 py-6 text-sm">
             <MDXRemote {...mdxSource} />
           </div>
         ) : selectedFile && highlightedCode ? (
           <div
-            className={`shiki-wrapper max-h-[calc(100vh-280px)] overflow-auto ${
-              isDark ? "dark" : "light"
-            }`}
+            className="w-full h-full p-6 font-mono text-sm overflow-auto [&_pre]:bg-transparent! [&_pre]:p-0! [&_code]:bg-transparent! [&_code]:text-xs [&_code]:font-mono"
             dangerouslySetInnerHTML={{ __html: highlightedCode }}
           />
         ) : selectedFile ? (
-          <pre
-            className={`max-h-[calc(100vh-280px)] overflow-auto p-6 text-xs leading-relaxed ${
-              isDark ? "bg-black text-zinc-200" : "bg-white text-stone-800"
-            }`}
-          >
+          <pre className="w-full h-full overflow-auto p-6 text-xs leading-relaxed bg-zinc-900 text-zinc-200">
             <code>{fileContent}</code>
           </pre>
         ) : (
-          <div
-            className={`flex flex-col items-center justify-center p-16 text-center ${
-              isDark ? "text-zinc-500" : "text-stone-500"
-            }`}
-          >
-            <svg
-              className="mb-4 h-16 w-16 opacity-20"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-              />
-            </svg>
-            <p className="text-sm font-medium">
-              Select a file to view its contents
-            </p>
-            <p className="mt-1 text-xs opacity-60">
-              Choose from the file explorer on the left
+          <div className="flex flex-col items-center text-center opacity-40">
+            <div className="w-16 h-16 rounded-full bg-zinc-800 flex items-center justify-center mb-4">
+              <FileText size={32} />
+            </div>
+            <h4 className="text-lg font-medium text-white">No file selected</h4>
+            <p className="text-sm max-w-60 mt-2">
+              Choose a file from the explorer on the left to inspect its contents.
             </p>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
 
-export function DocsContent({ isDark }: { isDark: boolean }) {
+function TemplateViewer({
+  sections,
+  selectedFile,
+  highlightedCode,
+  fileContent,
+  isLoadingContent,
+  mdxSource,
+  onSelectFile,
+}: {
+  sections: ManifestSection[];
+  selectedFile: ManifestFile | null;
+  highlightedCode: string;
+  fileContent: string;
+  isLoadingContent: boolean;
+  mdxSource: MDXRemoteSerializeResult | null;
+  onSelectFile: (file: ManifestFile) => void;
+}) {
+  return (
+    <div className="flex gap-6 h-full">
+      {/* File Tree Explorer */}
+      <div className="w-80 flex flex-col bg-[#111111] border border-zinc-800/50 rounded-xl overflow-hidden shadow-2xl">
+        <div className="p-4 border-b border-zinc-800/50 flex items-center justify-between bg-[#141414]">
+          <div>
+            <h3 className="text-sm font-semibold text-white">Files</h3>
+            <p className="text-[10px] text-zinc-500">Project structure</p>
+          </div>
+          <Settings
+            size={14}
+            className="text-zinc-600 cursor-pointer hover:text-zinc-400"
+          />
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-2">
+          <FileExplorer
+            sections={sections}
+            selectedPath={selectedFile?.path ?? ""}
+            onSelect={onSelectFile}
+          />
+        </div>
+      </div>
+
+      {/* Code Viewer */}
+      <CodePreview
+        selectedFile={selectedFile}
+        highlightedCode={highlightedCode}
+        fileContent={fileContent}
+        isLoadingContent={isLoadingContent}
+        mdxSource={mdxSource}
+      />
+    </div>
+  );
+}
+
+export function DocsContent({
+  isDark,
+  activeSection,
+}: {
+  isDark: boolean;
+  activeSection: string;
+}) {
   const [manifest, setManifest] = useState<TemplateManifest | null>(null);
   const [selectedFile, setSelectedFile] = useState<ManifestFile | null>(null);
   const [fileContent, setFileContent] = useState<string>("");
@@ -283,7 +331,21 @@ export function DocsContent({ isDark }: { isDark: boolean }) {
   const [isLoadingManifest, setIsLoadingManifest] = useState(true);
   const [isLoadingContent, setIsLoadingContent] = useState(false);
   const [error, setError] = useState<string>("");
-  const [activeTab, setActiveTab] = useState<string>("typescript");
+  
+  // Maintain language state, update when typescript/javascript sections are selected
+  const [currentLanguage, setCurrentLanguage] = useState<"typescript" | "javascript">("typescript");
+  
+  // Update language when typescript or javascript section is selected
+  useEffect(() => {
+    if (activeSection === "javascript") {
+      setCurrentLanguage("javascript");
+    } else if (activeSection === "typescript") {
+      setCurrentLanguage("typescript");
+    }
+    // For other sections (docker, database, websockets), keep the current language
+  }, [activeSection]);
+  
+  const activeTab = currentLanguage;
 
   useEffect(() => {
     const loadManifest = async () => {
@@ -305,6 +367,95 @@ export function DocsContent({ isDark }: { isDark: boolean }) {
 
     void loadManifest();
   }, []);
+
+  // Reset selected file when activeSection changes
+  useEffect(() => {
+    setSelectedFile(null);
+    setFileContent("");
+    setHighlightedCode("");
+    setMdxSource(null);
+  }, [activeSection]);
+
+  // Get sections based on active section
+  const getSections = (): ManifestSection[] => {
+    if (!manifest) return [];
+
+    const lang = activeTab === "typescript" ? "typescript" : "javascript";
+
+    // Handle special sections
+    if (activeSection === "database") {
+      // Show database-related files
+      const dbSection = manifest.languages[lang].find(
+        (s) => s.id === "rest_api"
+      );
+      const commonDbFile: ManifestFile = {
+        path: "base/common/db.ejs",
+        name: "db.ejs",
+        targetPath: lang === "typescript" ? "src/config/db.ts" : "src/config/db.js",
+      };
+
+      const dbConfigFiles = dbSection
+        ? dbSection.files.filter((f) => f.name.includes("db"))
+        : [];
+
+      return [
+        {
+          id: "database_common",
+          title: "Common Database Config",
+          files: [commonDbFile],
+        },
+        ...(dbConfigFiles.length > 0
+          ? [
+              {
+                id: "database_specific",
+                title: `${lang === "typescript" ? "TypeScript" : "JavaScript"} Database Config`,
+                files: dbConfigFiles,
+              },
+            ]
+          : []),
+      ];
+    }
+
+    if (activeSection === "docker") {
+      // Show Docker section with both languages organized
+      const tsDockerSection = manifest.languages.typescript.find(
+        (s) => s.id === "docker"
+      );
+      const jsDockerSection = manifest.languages.javascript.find(
+        (s) => s.id === "docker"
+      );
+
+      // If a language is selected, show only that language's Docker files
+      if (lang === "typescript" && tsDockerSection) {
+        return [
+          {
+            id: "docker_typescript",
+            title: "TypeScript Dockerfile",
+            files: tsDockerSection.files,
+          },
+        ];
+      } else if (lang === "javascript" && jsDockerSection) {
+        return [
+          {
+            id: "docker_javascript",
+            title: "JavaScript Dockerfile",
+            files: jsDockerSection.files,
+          },
+        ];
+      }
+      return [];
+    }
+
+    if (activeSection === "websockets") {
+      // Show WebSocket sections
+      return manifest.languages[lang].filter(
+        (s) => s.id.includes("websocket")
+      );
+    }
+
+    // For TypeScript and JavaScript, show all sections
+    return manifest.languages[lang];
+  };
 
   const loadFileContent = async (file: ManifestFile) => {
     setSelectedFile(file);
@@ -363,202 +514,130 @@ export function DocsContent({ isDark }: { isDark: boolean }) {
     }
   };
 
-  const handleTabChange = (value: string) => {
-    setActiveTab(value);
-    // Clear selected file when switching tabs
-    setSelectedFile(null);
-    setFileContent("");
-    setHighlightedCode("");
-    setMdxSource(null);
+  // Removed handleTabChange - language now controlled by sidebar navigation
+
+  if (error) {
+    return (
+      <div className="rounded-lg border border-red-500/30 bg-red-950/20 p-4">
+        <p className="text-red-200">{error}</p>
+      </div>
+    );
+  }
+
+  if (isLoadingManifest) {
+    return (
+      <div className="flex items-center justify-center p-12 text-zinc-400">
+        <svg
+          className="mr-2 h-5 w-5 animate-spin"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          ></circle>
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
+        </svg>
+        Loading templates...
+      </div>
+    );
+  }
+
+  if (!manifest) {
+    return null;
+  }
+
+  const sections = getSections();
+  // Language selector removed - language now controlled by sidebar navigation
+
+  // Get section description
+  const getSectionDescription = () => {
+    if (activeSection === "database") {
+      return {
+        title: "Database Support",
+        description:
+          `StackForge includes built-in support for MongoDB (with Mongoose) and PostgreSQL (with Prisma). Configuration files for ${activeTab === "typescript" ? "TypeScript" : "JavaScript"} shown below. The database setup dynamically adapts based on your selection during project initialization.`,
+        features: [
+          "MongoDB with Mongoose ORM",
+          "PostgreSQL with Prisma ORM",
+          "Connection pooling and error handling",
+          "Environment-based configuration",
+        ],
+      };
+    }
+    if (activeSection === "docker") {
+      return {
+        title: "Docker Support",
+        description:
+          `Production-ready Dockerfile for ${activeTab === "typescript" ? "TypeScript" : "JavaScript"} templates. Includes multi-stage builds, proper caching, and security best practices. Switch languages to see different configurations.`,
+        features: [
+          "Multi-stage builds for optimization",
+          "Node.js Alpine base image",
+          "Proper layer caching",
+          "Non-root user execution",
+        ],
+      };
+    }
+    if (activeSection === "websockets") {
+      return {
+        title: "WebSocket Support",
+        description:
+          "Real-time communication support with both Socket.io and native ws library implementations.",
+        features: [
+          "Socket.io for full-featured WebSocket",
+          "Native ws for lightweight connections",
+          "Ping/pong heartbeat mechanism",
+          "Error handling and reconnection logic",
+        ],
+      };
+    }
+    return null;
   };
 
+  const sectionInfo = getSectionDescription();
+
   return (
-    <section
-      id="docs-content"
-      className={`relative z-10 mx-auto w-full max-w-350 scroll-mt-24 px-6 pb-20 lg:px-10`}
-    >
-      <div className="space-y-8">
-        {error ? (
-          <Card
-            className={
-              isDark
-                ? "border-red-500/30 bg-red-950/20"
-                : "border-red-300 bg-red-50"
-            }
-          >
-            <CardContent className="pt-6">
-              <p className={isDark ? "text-red-200" : "text-red-700"}>
-                {error}
-              </p>
-            </CardContent>
-          </Card>
-        ) : isLoadingManifest ? (
-          <Card
-            className={
-              isDark
-                ? "border-white/10 bg-zinc-900/40"
-                : "border-stone-200 bg-white"
-            }
-          >
-            <CardContent className="pt-6">
-              <p className={isDark ? "text-zinc-400" : "text-stone-600"}>
-                Loading templates...
-              </p>
-            </CardContent>
-          </Card>
-        ) : manifest ? (
-          <>
-            <div className="text-center">
-              <h2
-                className={`text-2xl font-bold ${isDark ? "text-white" : "text-stone-900"}`}
-              >
-                Browse Templates
-              </h2>
-              <p
-                className={`mt-2 text-sm ${isDark ? "text-zinc-400" : "text-stone-600"}`}
-              >
-                Select a language tab and explore the template files
-              </p>
-            </div>
+    <div className="h-full flex flex-col gap-6">
+      {/* Section Info */}
+      {sectionInfo && (
+        <div className="bg-[#111111] border border-zinc-800/50 rounded-xl p-6">
+          <h2 className="text-xl font-bold text-white mb-2">
+            {sectionInfo.title}
+          </h2>
+          <p className="text-zinc-400 text-sm">
+            {sectionInfo.description}
+          </p>
+        </div>
+      )}
 
-            <Tabs
-              defaultValue="typescript"
-              value={activeTab}
-              onValueChange={handleTabChange}
-              className="w-full"
-            >
-              <div className="flex justify-center">
-                <TabsList
-                  className={`inline-flex ${isDark ? "bg-zinc-900/50" : "bg-stone-100"}`}
-                >
-                  <TabsTrigger value="typescript" className="gap-2">
-                    <svg
-                      className="h-4 w-4"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
-                      <path d="M1.125 0C.502 0 0 .502 0 1.125v21.75C0 23.498.502 24 1.125 24h21.75c.623 0 1.125-.502 1.125-1.125V1.125C24 .502 23.498 0 22.875 0zm17.363 9.75c.612 0 1.154.037 1.627.111a6.38 6.38 0 0 1 1.306.34v2.458a3.95 3.95 0 0 0-.643-.361 5.093 5.093 0 0 0-.717-.26 5.453 5.453 0 0 0-1.426-.2c-.3 0-.573.028-.819.086a2.1 2.1 0 0 0-.623.242c-.17.104-.3.229-.393.374a.888.888 0 0 0-.14.49c0 .196.053.373.156.529.104.156.252.304.443.444s.423.276.696.41c.273.135.582.274.926.416.47.197.892.407 1.266.628.374.222.695.473.963.753.268.279.472.598.614.957.142.359.214.776.214 1.253 0 .657-.125 1.21-.373 1.656a3.033 3.033 0 0 1-1.012 1.085 4.38 4.38 0 0 1-1.487.596c-.566.12-1.163.18-1.79.18a9.916 9.916 0 0 1-1.84-.164 5.544 5.544 0 0 1-1.512-.493v-2.63a5.033 5.033 0 0 0 3.237 1.2c.333 0 .624-.03.872-.09.249-.06.456-.144.623-.25.166-.108.29-.234.373-.38a1.023 1.023 0 0 0-.074-1.089 2.12 2.12 0 0 0-.537-.5 5.597 5.597 0 0 0-.807-.444 27.72 27.72 0 0 0-1.007-.436c-.918-.383-1.602-.852-2.053-1.405-.45-.553-.676-1.222-.676-2.005 0-.614.123-1.141.369-1.582.246-.441.58-.804 1.004-1.089a4.494 4.494 0 0 1 1.47-.629 7.536 7.536 0 0 1 1.77-.201zm-15.113.188h9.563v2.166H9.506v9.646H6.789v-9.646H3.375z" />
-                    </svg>
-                    TypeScript
-                  </TabsTrigger>
-                  <TabsTrigger value="javascript" className="gap-2">
-                    <svg
-                      className="h-4 w-4"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
-                      <path d="M0 0h24v24H0V0zm22.034 18.276c-.175-1.095-.888-2.015-3.003-2.873-.736-.345-1.554-.585-1.797-1.14-.091-.33-.105-.51-.046-.705.15-.646.915-.84 1.515-.66.39.12.75.42.976.9 1.034-.676 1.034-.676 1.755-1.125-.27-.42-.404-.601-.586-.78-.63-.705-1.469-1.065-2.834-1.034l-.705.089c-.676.165-1.32.525-1.71 1.005-1.14 1.291-.811 3.541.569 4.471 1.365 1.02 3.361 1.244 3.616 2.205.24 1.17-.87 1.545-1.966 1.41-.811-.18-1.26-.586-1.755-1.336l-1.83 1.051c.21.48.45.689.81 1.109 1.74 1.756 6.09 1.666 6.871-1.004.029-.09.24-.705.074-1.65l.046.067zm-8.983-7.245h-2.248c0 1.938-.009 3.864-.009 5.805 0 1.232.063 2.363-.138 2.711-.33.689-1.18.601-1.566.48-.396-.196-.597-.466-.83-.855-.063-.105-.11-.196-.127-.196l-1.825 1.125c.305.63.75 1.172 1.324 1.517.855.51 2.004.675 3.207.405.783-.226 1.458-.691 1.811-1.411.51-.93.402-2.07.397-3.346.012-2.054 0-4.109 0-6.179l.004-.056z" />
-                    </svg>
-                    JavaScript
-                  </TabsTrigger>
-                </TabsList>
-              </div>
 
-              <TabsContent value="typescript" className="mt-8">
-                <div className="grid gap-6 lg:grid-cols-[400px_1fr]">
-                  <Card
-                    className={`sticky top-6 h-fit ${
-                      isDark
-                        ? "border-white/10 bg-zinc-900/40"
-                        : "border-stone-200 bg-white"
-                    }`}
-                  >
-                    <CardHeader className="pb-3">
-                      <CardTitle className="flex items-center gap-2 text-base">
-                        <svg
-                          className="h-5 w-5"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
-                          />
-                        </svg>
-                        TypeScript Files
-                      </CardTitle>
-                      <CardDescription>
-                        Select a file to view its contents
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="max-h-[calc(100vh-200px)] overflow-auto">
-                      <FileExplorer
-                        sections={manifest.languages.typescript}
-                        selectedPath={selectedFile?.path ?? ""}
-                        onSelect={loadFileContent}
-                        isDark={isDark}
-                      />
-                    </CardContent>
-                  </Card>
 
-                  <CodePreview
-                    selectedFile={selectedFile}
-                    highlightedCode={highlightedCode}
-                    fileContent={fileContent}
-                    isLoadingContent={isLoadingContent}
-                    isDark={isDark}
-                    mdxSource={mdxSource}
-                  />
-                </div>
-              </TabsContent>
-
-              <TabsContent value="javascript" className="mt-8">
-                <div className="grid gap-6 lg:grid-cols-[400px_1fr]">
-                  <Card
-                    className={`sticky top-6 h-fit ${
-                      isDark
-                        ? "border-white/10 bg-zinc-900/40"
-                        : "border-stone-200 bg-white"
-                    }`}
-                  >
-                    <CardHeader className="pb-3">
-                      <CardTitle className="flex items-center gap-2 text-base">
-                        <svg
-                          className="h-5 w-5"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
-                          />
-                        </svg>
-                        JavaScript Files
-                      </CardTitle>
-                      <CardDescription>
-                        Select a file to view its contents
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="max-h-[calc(100vh-200px)] overflow-auto">
-                      <FileExplorer
-                        sections={manifest.languages.javascript}
-                        selectedPath={selectedFile?.path ?? ""}
-                        onSelect={loadFileContent}
-                        isDark={isDark}
-                      />
-                    </CardContent>
-                  </Card>
-
-                  <CodePreview
-                    selectedFile={selectedFile}
-                    highlightedCode={highlightedCode}
-                    fileContent={fileContent}
-                    isLoadingContent={isLoadingContent}
-                    isDark={isDark}
-                    mdxSource={mdxSource}
-                  />
-                </div>
-              </TabsContent>
-            </Tabs>
-          </>
-        ) : null}
+      {/* Template Viewer */}
+      <div className="flex-1 min-h-0">
+        {sections.length > 0 ? (
+          <TemplateViewer
+            sections={sections}
+            selectedFile={selectedFile}
+            highlightedCode={highlightedCode}
+            fileContent={fileContent}
+            isLoadingContent={isLoadingContent}
+            mdxSource={mdxSource}
+            onSelectFile={loadFileContent}
+          />
+        ) : (
+          <div className="flex items-center justify-center h-full text-zinc-500">
+            No files available for this section.
+          </div>
+        )}
       </div>
-    </section>
+    </div>
   );
 }

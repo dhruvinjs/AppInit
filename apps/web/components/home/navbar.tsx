@@ -26,53 +26,46 @@ export function Navbar({
           : "border-stone-200 bg-white/90 shadow-stone-300/50"
       }`}
     >
-      <button
-        type="button"
-        className="flex cursor-pointer items-center gap-3"
-        onClick={() => onScrollToSection("hero")}
-        aria-label="Go to hero section"
-      >
-        <div className="rounded-xl bg-blue-600 p-2 shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-transform duration-500 hover:scale-110">
-          <Wand2 className="text-white" size={20} />
-        </div>
-        <span
-          className={`text-xl font-black tracking-widest uppercase italic transition-colors ${
-            isDark ? "text-white" : "text-stone-900"
-          }`}
-        >
-          APPINIT
-        </span>
-      </button>
-
-      <div className="flex items-center gap-2 md:gap-6">
+      <div className="flex items-center gap-6">
         <button
           type="button"
-          onClick={onToggleTheme}
-          aria-label="Toggle theme"
-          className={`relative flex h-8 w-14 items-center rounded-full px-1 transition-all duration-500 ${
-            isDark ? "bg-zinc-800" : "bg-stone-300"
-          }`}
+          className="flex cursor-pointer items-center gap-3"
+          onClick={() => onScrollToSection("hero")}
+          aria-label="Go to hero section"
         >
+          <div className="rounded-xl bg-blue-600 p-2 shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-transform duration-500 hover:scale-110">
+            <Wand2 className="text-white" size={20} />
+          </div>
           <span
-            className={`absolute flex h-6 w-6 items-center justify-center rounded-full transition-all duration-500 ${
-              isDark
-                ? "translate-x-0 bg-zinc-900 text-amber-400"
-                : "translate-x-6 bg-white text-indigo-600"
+            className={`text-xl font-black tracking-widest uppercase italic transition-colors ${
+              isDark ? "text-white" : "text-stone-900"
             }`}
           >
-            {isDark ? <Moon size={14} /> : <Sun size={14} />}
+            APPINIT
           </span>
         </button>
+
         <Link
           href="/docs"
-          className={`hidden text-xs font-bold tracking-widest uppercase transition-colors md:inline ${
+          className={`hidden text-sm font-semibold tracking-wide transition-colors md:inline ${
             isDark
-              ? "text-zinc-500 hover:text-white"
-              : "text-stone-500 hover:text-stone-900"
+              ? "text-zinc-400 hover:text-white"
+              : "text-stone-600 hover:text-stone-900"
           }`}
         >
           Docs
         </Link>
+      </div>
+
+      <div className="flex items-center gap-2 md:gap-4">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={onToggleTheme}
+          aria-label="Toggle theme"
+        >
+          {isDark ? <Sun size={16} /> : <Moon size={16} />}
+        </Button>
         <Button
           asChild
           className="rounded-full bg-white px-6 py-2.5 text-black hover:bg-blue-500 hover:text-white"
