@@ -58,20 +58,6 @@ export default function DocsPage() {
             <nav className="space-y-4">
               <div>
                 <h4 className={`mb-3 px-2 text-xs font-semibold tracking-wide uppercase ${isDark ? "text-zinc-400" : "text-stone-600"}`}>
-                  Getting Started
-                </h4>
-                <div className="space-y-1">
-                  <NavLink href="/docs#installation" isDark={isDark}>
-                    Installation
-                  </NavLink>
-                  <NavLink href="/docs#quick-start" isDark={isDark}>
-                    Quick Start
-                  </NavLink>
-                </div>
-              </div>
-
-              <div>
-                <h4 className={`mb-3 px-2 text-xs font-semibold tracking-wide uppercase ${isDark ? "text-zinc-400" : "text-stone-600"}`}>
                   Templates
                 </h4>
                 <div className="space-y-1">
