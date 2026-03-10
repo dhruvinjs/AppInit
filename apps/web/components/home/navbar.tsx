@@ -45,24 +45,14 @@ export function Navbar({
       </button>
 
       <div className="flex items-center gap-2 md:gap-6">
-        <button
-          type="button"
+        <Button
+          variant="outline"
+          size="icon"
           onClick={onToggleTheme}
           aria-label="Toggle theme"
-          className={`relative flex h-8 w-14 items-center rounded-full px-1 transition-all duration-500 ${
-            isDark ? "bg-zinc-800" : "bg-stone-300"
-          }`}
         >
-          <span
-            className={`absolute flex h-6 w-6 items-center justify-center rounded-full transition-all duration-500 ${
-              isDark
-                ? "translate-x-0 bg-zinc-900 text-amber-400"
-                : "translate-x-6 bg-white text-indigo-600"
-            }`}
-          >
-            {isDark ? <Moon size={14} /> : <Sun size={14} />}
-          </span>
-        </button>
+          {isDark ? <Sun size={16} /> : <Moon size={16} />}
+        </Button>
         <Link
           href="/docs"
           className={`hidden text-xs font-bold tracking-widest uppercase transition-colors md:inline ${
