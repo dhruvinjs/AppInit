@@ -67,38 +67,31 @@ function FileExplorer({
   isDark: boolean;
 }) {
   return (
-    <Accordion type="single" collapsible className="w-full">
+    <Accordion type="single" collapsible className="w-full" defaultValue={sections[0]?.id}>
       {sections.map((section) => (
         <AccordionItem key={section.id} value={section.id}>
           <AccordionTrigger
-            className={`text-sm font-semibold ${isDark ? "text-zinc-200" : "text-stone-900"}`}
+            className={`text-xs font-semibold py-2 ${isDark ? "text-zinc-300 hover:text-white" : "text-stone-700 hover:text-stone-900"}`}
           >
             {section.title}
           </AccordionTrigger>
           <AccordionContent>
-            <div className="space-y-1 pl-2">
+            <div className="space-y-0.5 pl-2">
               {section.files.map((file) => (
                 <button
                   key={file.path}
                   type="button"
                   onClick={() => onSelect(file)}
-                  className={`block w-full rounded-md px-3 py-2 text-left text-xs transition-colors ${selectedPath === file.path
+                  className={`block w-full rounded px-2 py-1.5 text-left text-xs font-mono transition-colors ${selectedPath === file.path
                     ? isDark
-                      ? "bg-blue-950/60 text-blue-300"
-                      : "bg-blue-50 text-blue-700"
+                      ? "bg-blue-500/20 text-blue-400"
+                      : "bg-blue-100 text-blue-700"
                     : isDark
-                      ? "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200"
+                      ? "text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-200"
                       : "text-stone-600 hover:bg-stone-100 hover:text-stone-900"
                     }`}
                 >
-                  <div className="font-mono">
-                    {removeEjsExtension(file.name)}
-                  </div>
-                  <div
-                    className={`mt-0.5 text-[10px] ${isDark ? "text-zinc-500" : "text-stone-500"}`}
-                  >
-                    → {file.targetPath}
-                  </div>
+                  {removeEjsExtension(file.name)}
                 </button>
               ))}
             </div>
@@ -292,9 +285,21 @@ function TemplateViewer({
   );
 }
 
-export function DocsContent({ isDark }: { isDark: boolean }) {
+export function DocsContent({ 
+  isDark,
+  activeTemplate,
+  selectedFile,
+  onSelectFile,
+  isFileSelector = false
+}: { 
+  isDark: boolean;
+  activeTemplate?: string;
+  selectedFile?: any;
+  onSelectFile?: (file: any) => void;
+  isFileSelector?: boolean;
+}) {
   const [manifest, setManifest] = useState<TemplateManifest | null>(null);
-  const [selectedFile, setSelectedFile] = useState<ManifestFile | null>(null);
+  const [internalSelectedFile, setInternalSelectedFile] = useState<ManifestFile | null>(null);
   const [fileContent, setFileContent] = useState<string>("");
   const [highlightedCode, setHighlightedCode] = useState<string>("");
   const [mdxSource, setMdxSource] = useState<MDXRemoteSerializeResult | null>(
@@ -303,7 +308,10 @@ export function DocsContent({ isDark }: { isDark: boolean }) {
   const [isLoadingManifest, setIsLoadingManifest] = useState(true);
   const [isLoadingContent, setIsLoadingContent] = useState(false);
   const [error, setError] = useState<string>("");
-  const [activeTab, setActiveTab] = useState<string>("typescript");
+  const [activeTab, setActiveTab] = useState<string>(activeTemplate || "typescript");
+  
+  // Use passed selectedFile if in file selector mode, otherwise use internal state
+  const currentSelectedFile = isFileSelector && selectedFile ? selectedFile : internalSelectedFile;
 
   useEffect(() => {
     const loadManifest = async () => {
