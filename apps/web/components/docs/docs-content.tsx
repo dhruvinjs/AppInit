@@ -193,7 +193,7 @@ function CodePreview({
           </div>
         ) : selectedFile && highlightedCode ? (
           <div
-            className={`shiki-wrapper max-h-[calc(100vh-280px)] overflow-auto p-4 text-sm leading-relaxed ${isDark ? "dark" : "light"
+            className={`shiki-wrapper max-h-[calc(100vh-280px)] overflow-auto p-6 text-sm leading-relaxed [&_pre]:!bg-transparent [&_pre]:!p-0 [&_code]:!bg-transparent [&_code]:text-xs [&_code]:font-mono ${isDark ? "dark" : "light"
               }`}
             dangerouslySetInnerHTML={{ __html: highlightedCode }}
           />
@@ -232,6 +232,63 @@ function CodePreview({
         )}
       </CardContent>
     </Card>
+  );
+}
+
+function TemplateViewer({
+  sections,
+  selectedFile,
+  highlightedCode,
+  fileContent,
+  isLoadingContent,
+  isDark,
+  mdxSource,
+  onSelectFile,
+}: {
+  sections: ManifestSection[];
+  selectedFile: ManifestFile | null;
+  highlightedCode: string;
+  fileContent: string;
+  isLoadingContent: boolean;
+  isDark: boolean;
+  mdxSource: MDXRemoteSerializeResult | null;
+  onSelectFile: (file: ManifestFile) => void;
+}) {
+  return (
+    <div className="grid gap-8 lg:grid-cols-[320px_1fr]">
+      <Card
+        className={`sticky top-20 h-fit ${isDark
+          ? "border-white/10 bg-zinc-900/50"
+          : "border-stone-200 bg-stone-50"
+        }`}
+      >
+        <CardHeader className="pb-4">
+          <CardTitle className="text-base">
+            Files
+          </CardTitle>
+          <CardDescription className="text-xs">
+            Select to view source
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="max-h-[calc(100vh-250px)] overflow-auto">
+          <FileExplorer
+            sections={sections}
+            selectedPath={selectedFile?.path ?? ""}
+            onSelect={onSelectFile}
+            isDark={isDark}
+          />
+        </CardContent>
+      </Card>
+
+      <CodePreview
+        selectedFile={selectedFile}
+        highlightedCode={highlightedCode}
+        fileContent={fileContent}
+        isLoadingContent={isLoadingContent}
+        isDark={isDark}
+        mdxSource={mdxSource}
+      />
+    </div>
   );
 }
 
@@ -411,78 +468,17 @@ export function DocsContent({ isDark }: { isDark: boolean }) {
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="typescript" className="mt-8">
-                <div className="grid gap-8 lg:grid-cols-[320px_1fr]">
-                  <Card
-                    className={`sticky top-20 h-fit ${isDark
-                      ? "border-white/10 bg-zinc-900/50"
-                      : "border-stone-200 bg-stone-50"
-                      }`}
-                  >
-                    <CardHeader className="pb-4">
-                      <CardTitle className="text-base">
-                        Files
-                      </CardTitle>
-                      <CardDescription className="text-xs">
-                        Select to view source
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="max-h-[calc(100vh-250px)] overflow-auto">
-                      <FileExplorer
-                        sections={manifest.languages.typescript}
-                        selectedPath={selectedFile?.path ?? ""}
-                        onSelect={loadFileContent}
-                        isDark={isDark}
-                      />
-                    </CardContent>
-                  </Card>
-
-                  <CodePreview
-                    selectedFile={selectedFile}
-                    highlightedCode={highlightedCode}
-                    fileContent={fileContent}
-                    isLoadingContent={isLoadingContent}
-                    isDark={isDark}
-                    mdxSource={mdxSource}
-                  />
-                </div>
-              </TabsContent>
-
-              <TabsContent value="javascript" className="mt-8">
-                <div className="grid gap-8 lg:grid-cols-[320px_1fr]">
-                  <Card
-                    className={`sticky top-20 h-fit ${isDark
-                      ? "border-white/10 bg-zinc-900/50"
-                      : "border-stone-200 bg-stone-50"
-                      }`}
-                  >
-                    <CardHeader className="pb-4">
-                      <CardTitle className="text-base">
-                        Files
-                      </CardTitle>
-                      <CardDescription className="text-xs">
-                        Select to view source
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="max-h-[calc(100vh-250px)] overflow-auto">
-                      <FileExplorer
-                        sections={manifest.languages.javascript}
-                        selectedPath={selectedFile?.path ?? ""}
-                        onSelect={loadFileContent}
-                        isDark={isDark}
-                      />
-                    </CardContent>
-                  </Card>
-
-                  <CodePreview
-                    selectedFile={selectedFile}
-                    highlightedCode={highlightedCode}
-                    fileContent={fileContent}
-                    isLoadingContent={isLoadingContent}
-                    isDark={isDark}
-                    mdxSource={mdxSource}
-                  />
-                </div>
+              <TabsContent value={activeTab} className="mt-8">
+                <TemplateViewer
+                  sections={activeTab === "typescript" ? manifest.languages.typescript : manifest.languages.javascript}
+                  selectedFile={selectedFile}
+                  highlightedCode={highlightedCode}
+                  fileContent={fileContent}
+                  isLoadingContent={isLoadingContent}
+                  isDark={isDark}
+                  mdxSource={mdxSource}
+                  onSelectFile={loadFileContent}
+                />
               </TabsContent>
             </Tabs>
           </>
