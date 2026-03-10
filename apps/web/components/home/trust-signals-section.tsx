@@ -9,21 +9,21 @@ export function TrustSignalsSection({ isDark }: TrustSignalsSectionProps) {
   return (
     <section
       id="trust"
-      className="relative z-10 mx-auto w-full max-w-350 px-4 py-20 sm:px-6 lg:px-10"
+      className="relative z-10 mx-auto w-full max-w-350 px-[21px] py-[89px] sm:px-[34px] lg:px-[55px]"
     >
       <div className="text-center">
         <h2
-          className={`text-3xl font-black tracking-tight sm:text-4xl md:text-5xl ${isDark ? "text-white" : "text-stone-900"}`}
+          className={`text-[34px] font-black tracking-[-0.02em] sm:text-[55px] ${isDark ? "text-white" : "text-stone-900"}`}
         >
           Built in Public
         </h2>
 
-        <div className="mx-auto mt-12 grid max-w-4xl gap-6 sm:grid-cols-3">
+        <div className="mx-auto mt-[55px] grid max-w-4xl gap-[21px] sm:grid-cols-3">
           {/* Open Source */}
           <Link
             href="https://github.com/yourusername/appinit"
             target="_blank"
-            className={`group rounded-3xl border p-8 backdrop-blur-xl transition-all hover:-translate-y-1 ${
+            className={`group rounded-[34px] border p-[21px] backdrop-blur-xl transition-all duration-[420ms] hover:-translate-y-1 ${
               isDark
                 ? "border-white/10 bg-zinc-900/60 hover:border-white/20"
                 : "border-stone-200 bg-white/90 hover:border-stone-300"
@@ -47,7 +47,7 @@ export function TrustSignalsSection({ isDark }: TrustSignalsSectionProps) {
 
           {/* GitHub Stars */}
           <div
-            className={`rounded-3xl border p-8 backdrop-blur-xl ${
+            className={`rounded-[34px] border p-[21px] backdrop-blur-xl ${
               isDark
                 ? "border-white/10 bg-zinc-900/60"
                 : "border-stone-200 bg-white/90"
@@ -71,7 +71,7 @@ export function TrustSignalsSection({ isDark }: TrustSignalsSectionProps) {
 
           {/* Contributors */}
           <div
-            className={`rounded-3xl border p-8 backdrop-blur-xl ${
+            className={`rounded-[34px] border p-[21px] backdrop-blur-xl ${
               isDark
                 ? "border-white/10 bg-zinc-900/60"
                 : "border-stone-200 bg-white/90"
