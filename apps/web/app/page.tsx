@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useTheme } from "next-themes";
 
 import { BackgroundEffects } from "@/components/home/background-effects";
+import { BoilerplateExplorer } from "@/components/home/boilerplate-explorer";
+import { FAQSection } from "@/components/home/faq-section";
 import { FinalCTASection } from "@/components/home/final-cta-section";
 import { FlagsSection } from "@/components/home/flags-section";
 import { Footer } from "@/components/home/footer";
@@ -72,9 +74,13 @@ export default function Home() {
       <StacksSection isDark={isDark} />
       {/* Section 6: Customization */}
       <FlagsSection isDark={isDark} />
-      {/* Section 7: Trust Signals */}
+      {/* Section 7: Boilerplate Explorer */}
+      <BoilerplateExplorer isDark={isDark} />
+      {/* Section 8: FAQ */}
+      <FAQSection isDark={isDark} />
+      {/* Section 9: Trust Signals */}
       <TrustSignalsSection isDark={isDark} />
-      {/* Section 8: Final CTA */}
+      {/* Section 10: Final CTA */}
       <FinalCTASection
         isDark={isDark}
         command={command}
