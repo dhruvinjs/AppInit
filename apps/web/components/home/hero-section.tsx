@@ -4,52 +4,30 @@ import { ArrowDown, ArrowRight, Check, Copy, Layers } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-type HeroSectionProps = {
+type HeroSectionProps<T extends readonly { readonly id: string; readonly label: string; readonly command: string; readonly description: string; readonly workspaceScript: string; readonly workspaceRun: string; }[]> = {
   isDark: boolean;
-  command: string;
+  commandOptions: T;
+  activeCommandId: T[number]['id'];
   isCopied: boolean;
-  onCopy: () => Promise<void>;
+  onSelectCommand: (id: T[number]['id']) => void;
+  onCopy: (command: string) => Promise<void>;
   docsHref?: string;
 };
 
-type PackageManager = {
-  id: string;
-  name: string;
-  command: string;
-  description: string;
-};
 
-export function HeroSection({
+
+export function HeroSection<T extends readonly { readonly id: string; readonly label: string; readonly command: string; readonly description: string; readonly workspaceScript: string; readonly workspaceRun: string; }[]>({
   isDark,
-  command,
+  commandOptions,
+  activeCommandId,
   isCopied,
+  onSelectCommand,
   onCopy,
   docsHref = "/docs",
-}: HeroSectionProps) {
-  const [activeManager, setActiveManager] = React.useState<string>("pnpm");
-  
-  const packageManagers: PackageManager[] = [
-    {
-      id: "npm",
-      name: "npm",
-      command: "npx @dhruvinjs/appinit my-test-app",
-      description: "No installation required, works everywhere"
-    },
-    {
-      id: "pnpm",
-      name: "pnpm",
-      command: "pnpm dlx @dhruvinjs/appinit my-test-app",
-      description: "Fast, disk-efficient package manager"
-    },
-    {
-      id: "yarn",
-      name: "Yarn",
-      command: "yarn dlx @dhruvinjs/appinit my-test-app",
-      description: "Reliable dependency management"
-    }
-  ];
-  
-  const currentManager = packageManagers.find(pm => pm.id === activeManager) ?? packageManagers[1]!;
+}: HeroSectionProps<T>) {
+  const currentCommand = commandOptions.find(
+    (cmd) => cmd.id === activeCommandId
+  ) ?? commandOptions[0];
   return (
     <header
       id="hero"
@@ -107,12 +85,12 @@ export function HeroSection({
       <div className="relative mx-auto w-full max-w-2xl xl:max-w-none">
         {/* Package Manager Selector */}
         <div className="mb-[21px] flex items-center justify-center gap-2">
-          {packageManagers.map((pm) => (
+          {commandOptions.map((cmd) => (
             <button
-              key={pm.id}
-              onClick={() => setActiveManager(pm.id)}
+              key={cmd.id}
+              onClick={() => onSelectCommand(cmd.id)}
               className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 ${
-                pm.id === activeManager
+                cmd.id === activeCommandId
                   ? isDark
                     ? "bg-blue-600 text-white shadow-lg"
                     : "bg-blue-100 text-blue-900 shadow-md"
@@ -121,7 +99,7 @@ export function HeroSection({
                     : "bg-stone-100 text-stone-600 hover:bg-stone-200 hover:text-stone-800"
               }`}
             >
-              {pm.name}
+              {cmd.label}
             </button>
           ))}
         </div>
@@ -151,7 +129,7 @@ export function HeroSection({
                   isDark ? "text-zinc-500" : "text-stone-500"
                 }`}
               >
-                AppInit CLI - {currentManager.name}
+                AppInit CLI - {currentCommand?.label}
               </span>
             </div>
             <div className="flex items-center justify-between gap-[13px]">
@@ -160,7 +138,7 @@ export function HeroSection({
                   Terminal
                 </div>
                 <div className={`mt-[4px] text-[9px] ${isDark ? "text-zinc-600" : "text-stone-400"}`}>
-                  {currentManager.description}
+                  {currentCommand?.description}
                 </div>
                 <div
                   className={`mt-[8px] flex items-center gap-[13px] ${
@@ -168,14 +146,15 @@ export function HeroSection({
                   }`}
                 >
                   <span className="font-bold text-cyan-400 select-none">❯</span>
-                  <span className="truncate tracking-tight">{currentManager.command}</span>
+                  <span className="truncate tracking-tight">{currentCommand?.command}</span>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => {
-                  navigator.clipboard.writeText(currentManager.command);
-                  // You might want to add a copied state for this specific button
+                  if (currentCommand) {
+                    onCopy(currentCommand.command);
+                  }
                 }}
                 className={`group/btn relative shrink-0 overflow-hidden rounded-[13px] p-2.5 transition-all duration-[160ms] active:scale-105 ${
                   isCopied

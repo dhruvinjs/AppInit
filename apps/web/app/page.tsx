@@ -93,7 +93,7 @@ export default function Home() {
         activeCommandId={activeCommandId}
         isCopied={isCopied}
         onSelectCommand={(commandId) => {
-          setActiveCommandId(commandId as (typeof commandOptions)[number]["id"]);
+          setActiveCommandId(commandId);
           setIsCopied(false);
         }}
         onCopy={handleCopy}
