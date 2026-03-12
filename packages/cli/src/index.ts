@@ -6,6 +6,7 @@ import inquirer from "inquirer";
 import type { FlagConfig, PresetConfig } from "./types.js";
 import {
   checkEnv,
+  detectPackageManager,
   generateRandomNames,
   getSafeProjectPath,
   isToolInstalled,
@@ -182,6 +183,10 @@ Examples:
         flagConfig.websocket_package = options.ws;
       }
 
+      const detected_pm = detectPackageManager()
+      if(!options.pm && detected_pm){
+        options.pm = detected_pm;
+      }
       if (options.pm) {
         const validPm = ["npm", "pnpm", "yarn"];
         if (!validPm.includes(options.pm)) {

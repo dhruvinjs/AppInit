@@ -10,6 +10,13 @@ This package creates an Express-based backend starter with optional WebSocket su
 npx @dhruvinjs/appinit my-app
 ```
 
+Use with pnpm or Yarn (no global install needed):
+
+```bash
+pnpm dlx @dhruvinjs/appinit my-app
+yarn dlx @dhruvinjs/appinit my-app
+```
+
 You can also run without a name and choose it in prompts:
 
 ```bash
@@ -27,6 +34,42 @@ Global command also supports no name:
 
 ```bash
 appinit
+```
+
+## Workspaces (pnpm/Yarn) script
+
+If you want a root `package.json` script in a monorepo:
+
+pnpm workspace:
+
+```json
+{
+  "scripts": {
+    "appinit": "pnpm dlx @dhruvinjs/appinit"
+  }
+}
+```
+
+Run:
+
+```bash
+pnpm appinit
+```
+
+Yarn workspace:
+
+```json
+{
+  "scripts": {
+    "appinit": "yarn dlx @dhruvinjs/appinit"
+  }
+}
+```
+
+Run:
+
+```bash
+yarn appinit
 ```
 
 ## What this CLI actually does

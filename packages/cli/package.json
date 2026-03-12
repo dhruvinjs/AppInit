@@ -1,6 +1,6 @@
 {
   "name": "@dhruvinjs/appinit",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "description": "Express backend starter with optional WebSocket, DB, and Docker support.",
   "main": "dist/index.js",
   "type": "module",

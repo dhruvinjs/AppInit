@@ -183,3 +183,12 @@ export async function removeProjectDirectory(projectPath: string) {
     );
   }
 }
+
+export function detectPackageManager(): "pnpm" | "yarn" | "npm" | undefined {
+  const ua = process.env.npm_config_user_agent || "";
+  // console.log(ua)
+  if (ua.includes("pnpm")) return "pnpm";
+  if (ua.includes("yarn")) return "yarn";
+  if (ua.includes("npm")) return "npm";
+  return undefined;
+}
