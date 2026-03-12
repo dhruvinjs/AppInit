@@ -16,10 +16,42 @@ import { StacksSection } from "@/components/home/stacks-section";
 import { TrustSignalsSection } from "@/components/home/trust-signals-section";
 
 export default function Home() {
-  const command = "npx @dhruvinjs/appinit my-test-app";
+  const commandOptions = [
+    {
+      id: "npm",
+      label: "npm",
+      command: "npx @dhruvinjs/appinit my-test-app",
+      description: "One-off npm execution with no global install.",
+      workspaceScript: '"appinit": "npx @dhruvinjs/appinit"',
+      workspaceRun: "npm run appinit -- my-test-app",
+    },
+    {
+      id: "pnpm",
+      label: "pnpm",
+      command: "pnpm dlx @dhruvinjs/appinit my-test-app",
+      description: "Best fit for pnpm workspaces and zero extra prompts.",
+      workspaceScript: '"appinit": "pnpm dlx @dhruvinjs/appinit"',
+      workspaceRun: "pnpm appinit my-test-app",
+    },
+    {
+      id: "yarn",
+      label: "Yarn",
+      command: "yarn dlx @dhruvinjs/appinit my-test-app",
+      description: "Fast workspace-friendly Yarn execution path.",
+      workspaceScript: '"appinit": "yarn dlx @dhruvinjs/appinit"',
+      workspaceRun: "yarn appinit my-test-app",
+    },
+  ] as const;
+
+  const [activeCommandId, setActiveCommandId] = useState<
+    (typeof commandOptions)[number]["id"]
+  >("pnpm");
   const [isCopied, setIsCopied] = useState(false);
   const { resolvedTheme, setTheme } = useTheme();
   const isDark = resolvedTheme !== "light";
+  const activeCommand =
+    commandOptions.find((option) => option.id === activeCommandId)
+    ?? commandOptions[0];
 
   const scrollToSection = (id: string) => {
     const target = document.getElementById(id);
@@ -30,7 +62,7 @@ export default function Home() {
     window.history.replaceState(null, "", `#${id}`);
   };
 
-  const handleCopy = async () => {
+  const handleCopy = async (command: string) => {
     try {
       await navigator.clipboard.writeText(command);
       setIsCopied(true);
@@ -57,8 +89,13 @@ export default function Home() {
       {/* Section 1: Hero */}
       <HeroSection
         isDark={isDark}
-        command={command}
+        commandOptions={commandOptions}
+        activeCommandId={activeCommandId}
         isCopied={isCopied}
+        onSelectCommand={(commandId) => {
+          setActiveCommandId(commandId as (typeof commandOptions)[number]["id"]);
+          setIsCopied(false);
+        }}
         onCopy={handleCopy}
         docsHref="/docs"
       />
@@ -77,7 +114,7 @@ export default function Home() {
       {/* Section 8: Final CTA */}
       <FinalCTASection
         isDark={isDark}
-        command={command}
+        command={activeCommand.command}
         isCopied={isCopied}
         onCopy={handleCopy}
       />

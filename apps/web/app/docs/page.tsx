@@ -8,165 +8,289 @@ import {
   Home,
   Sun,
   Moon,
+  Github,
+  Menu,
+  X,
 } from "lucide-react";
 
-import { DocsContent } from "@/components/docs/docs-content";
-
-const IconImage = ({
-  src,
-  size = 16,
-}: {
-  src: string;
-  size?: number;
-}) => (
-  <img
-    src={src}
-    width={size}
-    height={size}
-    alt=""
-    aria-hidden="true"
-    className="inline-block"
-  />
-);
-
-const IconWebSockets = ({ size = 16 }: { size?: number }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    aria-hidden="true"
-  >
-    <circle cx="6.5" cy="7.5" r="3" className="stroke-cyan-300" strokeWidth="1.5" />
-    <circle cx="17.5" cy="6.5" r="3" className="stroke-cyan-300" strokeWidth="1.5" />
-    <circle cx="17.5" cy="17.5" r="3" className="stroke-cyan-300" strokeWidth="1.5" />
-    <path
-      d="M9.2 9.1l5.1-1.9M8.2 8.6l6 6.2M9.3 12.5l4.1 4.1"
-      className="stroke-cyan-300"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-    />
-  </svg>
-);
-
-const NAV_ITEMS = [
-  {
-    id: "typescript",
-    icon: () => <IconImage src="/typescript.svg" />,
-    label: "TypeScript",
-    category: "TEMPLATES",
-  },
-  {
-    id: "javascript",
-    icon: () => <IconImage src="/icons8-javascript.svg" />,
-    label: "JavaScript",
-    category: "TEMPLATES",
-  },
-  { id: "websockets", icon: IconWebSockets, label: "WebSockets", category: "TEMPLATES" },
-];
+import { BackgroundEffects } from "@/components/home/background-effects";
+import { DOCS_SECTIONS } from "@/components/docs/docs-sections";
 
 export default function DocsPage() {
   const { resolvedTheme, setTheme } = useTheme();
   const isDark = resolvedTheme !== "light";
-  const [activeSection, setActiveSection] = useState("typescript");
+  const [activeSection, setActiveSection] = useState("introduction");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const ActiveComponent = DOCS_SECTIONS.find(s => s.id === activeSection)?.component;
+
+  // Generate table of contents based on active section
+  const getTOC = () => {
+    const tocMap: Record<string, Array<{ id: string; label: string }>> = {
+      introduction: [
+        { id: "what-is-appinit", label: "What is AppInit?" },
+        { id: "why-choose", label: "Why Choose AppInit?" },
+      ],
+      "getting-started": [
+        { id: "installation", label: "Installation" },
+        { id: "running", label: "Running Your Project" },
+        { id: "whats-included", label: "What's Included?" },
+      ],
+      reasoning: [
+        { id: "typescript", label: "Why TypeScript?" },
+        { id: "prisma", label: "Why Prisma?" },
+        { id: "mongoose", label: "Why Mongoose?" },
+        { id: "websocket", label: "Why WebSocket?" },
+        { id: "docker", label: "Why Docker?" },
+        { id: "security", label: "Why Security?" },
+        { id: "pino", label: "Why Pino?" },
+      ],
+      templates: [
+        { id: "ts-rest-api", label: "TypeScript REST" },
+        { id: "ts-websocket", label: "TypeScript WebSocket" },
+        { id: "js-rest-api", label: "JavaScript REST" },
+        { id: "js-websocket", label: "JavaScript WebSocket" },
+      ],
+      "template-explorer": [
+        { id: "overview", label: "Overview" },
+        { id: "typescript", label: "TypeScript" },
+        { id: "javascript", label: "JavaScript" },
+      ],
+      "cli-commands": [
+        { id: "preset-flags", label: "Preset Flags" },
+        { id: "interactive", label: "Interactive Mode" },
+        { id: "examples", label: "Examples" },
+      ],
+    };
+
+    return tocMap[activeSection] || [];
+  };
 
   return (
-    <div className="flex h-screen bg-[#0a0a0a] text-zinc-300 font-sans antialiased overflow-hidden bg-[radial-gradient(900px_500px_at_20%_-10%,rgba(59,130,246,0.14),transparent),radial-gradient(800px_400px_at_90%_0%,rgba(14,165,233,0.10),transparent)]">
-      {/* Global Sidebar (Left) */}
-      <aside className="w-64 border-r border-zinc-800/50 flex flex-col bg-[#0d0d0d] shadow-[inset_-1px_0_0_rgba(255,255,255,0.03)]">
-        <div className="p-6">
-          <div className="flex items-center gap-2 mb-8">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-900/20">
-              <Layers size={18} className="text-white" />
+    <div
+      className={`min-h-screen transition-colors duration-700 selection:bg-blue-500/30 selection:text-white ${
+        isDark ? "bg-black text-zinc-300" : "bg-stone-50 text-stone-700"
+      }`}
+    >
+      <BackgroundEffects isDark={isDark} />
+      {/* Header */}
+      <header
+        className={`border-b sticky top-0 z-50 backdrop-blur-sm ${
+          isDark
+            ? "border-white/10 bg-black/80"
+            : "border-stone-200 bg-white/90"
+        }`}
+      >
+        <div className="mx-auto max-w-7xl px-6 py-4 lg:px-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Link
+                href="/"
+                className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+              >
+                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-900/20">
+                  <Layers size={18} className="text-white" />
+                </div>
+                <span
+                  className={`font-bold text-lg ${
+                    isDark ? "text-white" : "text-stone-900"
+                  }`}
+                >
+                  AppInit
+                </span>
+              </Link>
+              <span className="text-zinc-500 text-sm hidden md:block">›</span>
+              <span
+                className={`text-sm hidden md:block ${
+                  isDark ? "text-zinc-400" : "text-stone-600"
+                }`}
+              >
+                Documentation
+              </span>
             </div>
-            <h1 className="font-bold text-white tracking-tight">AppInit</h1>
+            <div className="flex items-center gap-3">
+              <a
+                href="https://github.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`p-2 rounded-lg transition-colors ${
+                  isDark
+                    ? "bg-zinc-800 hover:bg-zinc-700"
+                    : "bg-stone-100 hover:bg-stone-200"
+                }`}
+              >
+                <Github size={18} />
+              </a>
+              <button
+                onClick={() => setTheme(isDark ? "light" : "dark")}
+                className={`p-2 rounded-lg transition-colors ${
+                  isDark
+                    ? "bg-zinc-800 hover:bg-zinc-700"
+                    : "bg-stone-100 hover:bg-stone-200"
+                }`}
+              >
+                {isDark ? <Sun size={18} /> : <Moon size={18} />}
+              </button>
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className={`lg:hidden p-2 rounded-lg transition-colors ${
+                  isDark
+                    ? "bg-zinc-800 hover:bg-zinc-700"
+                    : "bg-stone-100 hover:bg-stone-200"
+                }`}
+              >
+                {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+              </button>
+            </div>
           </div>
+        </div>
+      </header>
 
-          <nav className="space-y-6">
-            <div>
-              <p className="text-[10px] font-bold text-zinc-500 tracking-widest mb-4">
-                TEMPLATES
-              </p>
-              <div className="space-y-1">
-                {NAV_ITEMS.filter((n) => n.category === "TEMPLATES").map((item) => (
+      <div className="mx-auto max-w-7xl px-6 py-8 lg:px-8">
+        <div className="grid gap-8 lg:grid-cols-[280px_1fr_240px]">
+          {/* Left Sidebar Navigation with Progressive Blur */}
+          <aside className="hidden lg:block relative">
+            {/* Progressive blur effect */}
+            <div 
+              className={`absolute inset-y-0 -right-8 w-16 bg-gradient-to-l pointer-events-none ${
+                isDark 
+                  ? "from-black via-black/50 to-transparent" 
+                  : "from-stone-50 via-stone-50/50 to-transparent"
+              }`}
+              style={{ maskImage: "linear-gradient(to left, black, transparent)" }}
+            />
+            <nav className="sticky top-24 space-y-1">
+              <div className="mb-6">
+                <h2
+                  className={`text-xs font-bold tracking-widest uppercase mb-3 ${
+                    isDark ? "text-zinc-500" : "text-stone-500"
+                  }`}
+                >
+                  Documentation
+                </h2>
+              </div>
+              {DOCS_SECTIONS.map((section) => {
+                const Icon = section.icon;
+                return (
                   <button
-                    key={item.id}
-                    onClick={() => setActiveSection(item.id)}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all ${
-                      activeSection === item.id
-                        ? "bg-zinc-800/80 text-white shadow-sm ring-1 ring-blue-500/20"
-                        : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900"
+                    key={section.id}
+                    onClick={() => setActiveSection(section.id)}
+                    className={`flex items-center gap-3 w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-all ${
+                      activeSection === section.id
+                        ? isDark
+                          ? "bg-blue-950/40 text-blue-300 ring-1 ring-blue-500/20"
+                          : "bg-blue-50 text-blue-700 ring-1 ring-blue-200"
+                        : isDark
+                        ? "text-zinc-400 hover:text-zinc-300 hover:bg-zinc-900/50"
+                        : "text-stone-600 hover:text-stone-900 hover:bg-stone-100"
                     }`}
                   >
-                    <item.icon size={16} />
-                    {item.label}
+                    <Icon size={16} />
+                    {section.label}
                   </button>
-                ))}
+                );
+              })}
+            </nav>
+          </aside>
+
+          {/* Mobile Navigation */}
+          {mobileMenuOpen && (
+            <div
+              className={`lg:hidden fixed inset-0 z-40 ${
+                isDark ? "bg-black" : "bg-stone-50"
+              }`}
+            >
+              <div className="p-6 space-y-2">
+                {DOCS_SECTIONS.map((section) => {
+                  const Icon = section.icon;
+                  return (
+                    <button
+                      key={section.id}
+                      onClick={() => {
+                        setActiveSection(section.id);
+                        setMobileMenuOpen(false);
+                      }}
+                      className={`flex items-center gap-3 w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-all ${
+                        activeSection === section.id
+                          ? isDark
+                            ? "bg-blue-950/40 text-blue-300"
+                            : "bg-blue-50 text-blue-700"
+                          : isDark
+                          ? "text-zinc-400 hover:text-zinc-300 hover:bg-zinc-900/50"
+                          : "text-stone-600 hover:text-stone-900 hover:bg-stone-100"
+                      }`}
+                    >
+                      <Icon size={16} />
+                      {section.label}
+                    </button>
+                  );
+                })}
               </div>
             </div>
+          )}
 
-            <div>
-              {NAV_ITEMS.some((n) => n.category === "FEATURES") && (
-                <>
-                  <p className="text-[10px] font-bold text-zinc-500 tracking-widest mb-4">
-                    FEATURES
-                  </p>
-                  <div className="space-y-1">
-                    {NAV_ITEMS.filter((n) => n.category === "FEATURES").map((item) => (
-                      <button
-                        key={item.id}
-                        onClick={() => setActiveSection(item.id)}
-                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all ${
-                          activeSection === item.id
-                            ? "bg-zinc-800 text-white"
-                            : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900"
-                        }`}
-                      >
-                        <item.icon size={16} />
-                        {item.label}
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
+          {/* Main Content */}
+          <main
+            className={`rounded-lg border ${
+              isDark
+                ? "border-white/10 bg-zinc-900/40"
+                : "border-stone-200 bg-white/80 shadow-sm"
+            }`}
+          >
+            <div className="max-w-3xl mx-auto px-8 py-12">
+              {ActiveComponent && <ActiveComponent />}
             </div>
-          </nav>
+          </main>
+
+          {/* Right Sidebar - Table of Contents with Progressive Blur */}
+          <aside className="hidden xl:block relative">
+            {/* Progressive blur effect */}
+            <div 
+              className={`absolute inset-y-0 -left-8 w-16 bg-gradient-to-r pointer-events-none ${
+                isDark 
+                  ? "from-black via-black/50 to-transparent" 
+                  : "from-stone-50 via-stone-50/50 to-transparent"
+              }`}
+              style={{ maskImage: "linear-gradient(to right, black, transparent)" }}
+            />
+            <div className="sticky top-24 space-y-4">
+              <div>
+                <h3
+                  className={`text-xs font-bold tracking-widest uppercase mb-3 ${
+                    isDark ? "text-zinc-500" : "text-stone-500"
+                  }`}
+                >
+                  On this page
+                </h3>
+                <nav className="space-y-2 text-sm">
+                  {getTOC().map((item) => (
+                    <a
+                      key={item.id}
+                      href={`#${item.id}`}
+                      className={`block transition-colors ${
+                        isDark
+                          ? "text-zinc-400 hover:text-zinc-300"
+                          : "text-stone-600 hover:text-stone-900"
+                      }`}
+                    >
+                      {item.label}
+                    </a>
+                  ))}
+                </nav>
+              </div>
+
+
+              <div
+                className={`border-t pt-4 ${
+                  isDark ? "border-white/10" : "border-stone-200"
+                }`}
+              >
+               
+              </div>
+            </div>
+          </aside>
         </div>
-
-        {/* Bottom section removed */}
-      </aside>
-
-      {/* Main Content Area */}
-      <main className="flex-1 flex flex-col min-w-0">
-        {/* Header Bar */}
-        <header className="h-14 border-b border-zinc-800/50 flex items-center justify-between px-8 bg-[#0d0d0d]/60 backdrop-blur-sm shadow-[inset_0_-1px_0_rgba(255,255,255,0.03)]">
-          <div className="flex items-center gap-2 text-sm text-zinc-500">
-            <Link
-              href="/"
-              className="relative text-zinc-400 transition-colors hover:text-white after:absolute after:left-0 after:-bottom-1 after:h-px after:w-0 after:bg-blue-400 after:transition-all after:duration-300 hover:after:w-full"
-            >
-              Home
-            </Link>
-            <span className="text-zinc-700">›</span>
-            <span className="text-zinc-300">Documents</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <a
-              href="https://github.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs bg-blue-600/90 hover:bg-blue-500 text-white px-4 py-1.5 rounded-md font-medium transition-colors shadow shadow-blue-900/30"
-            >
-              View on GitHub
-            </a>
-          </div>
-        </header>
-
-        {/* Documentation Content */}
-        <div className="flex-1 overflow-auto p-6">
-          <DocsContent isDark={isDark} activeSection={activeSection} />
-        </div>
-      </main>
+      </div>
     </div>
   );
 }

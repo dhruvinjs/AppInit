@@ -89,7 +89,7 @@ export function TrustSignalsSection({ isDark }: TrustSignalsSectionProps) {
             <p
               className={`mt-2 text-2xl font-black ${isDark ? "text-white" : "text-stone-900"}`}
             >
-              v1.0.1
+              v1.0.6
             </p>
           </div>
         </div>

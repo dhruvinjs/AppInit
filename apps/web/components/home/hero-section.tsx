@@ -1,3 +1,4 @@
+import React from "react";
 import Link from "next/link";
 import { ArrowDown, ArrowRight, Check, Copy, Layers } from "lucide-react";
 
@@ -11,6 +12,13 @@ type HeroSectionProps = {
   docsHref?: string;
 };
 
+type PackageManager = {
+  id: string;
+  name: string;
+  command: string;
+  description: string;
+};
+
 export function HeroSection({
   isDark,
   command,
@@ -18,6 +26,30 @@ export function HeroSection({
   onCopy,
   docsHref = "/docs",
 }: HeroSectionProps) {
+  const [activeManager, setActiveManager] = React.useState<string>("pnpm");
+  
+  const packageManagers: PackageManager[] = [
+    {
+      id: "npm",
+      name: "npm",
+      command: "npx @dhruvinjs/appinit my-test-app",
+      description: "No installation required, works everywhere"
+    },
+    {
+      id: "pnpm",
+      name: "pnpm",
+      command: "pnpm dlx @dhruvinjs/appinit my-test-app",
+      description: "Fast, disk-efficient package manager"
+    },
+    {
+      id: "yarn",
+      name: "Yarn",
+      command: "yarn dlx @dhruvinjs/appinit my-test-app",
+      description: "Reliable dependency management"
+    }
+  ];
+  
+  const currentManager = packageManagers.find(pm => pm.id === activeManager) ?? packageManagers[1]!;
   return (
     <header
       id="hero"
@@ -73,71 +105,119 @@ export function HeroSection({
       </div>
 
       <div className="relative mx-auto w-full max-w-2xl xl:max-w-none">
-          {/* CLI Focal Window */}
-          <div className="pointer-events-none absolute -inset-[21px] rounded-[34px] bg-cyan-500/10 blur-[80px]" />
-          <div className="pointer-events-none absolute -right-[13px] -top-[13px] h-[89px] w-[144px] rounded-full bg-violet-500/10 blur-[60px]" />
-          <div className="group relative">
-            <div
-              className={`absolute -inset-2 rounded-[34px] opacity-20 blur-3xl transition duration-[700ms] group-hover:opacity-35 ${isDark ? "bg-cyan-500/30" : "bg-indigo-300/60"}`}
-            />
-            <div
-              className={`relative overflow-hidden rounded-[34px] border p-[21px] text-left font-mono text-xs shadow-2xl backdrop-blur-2xl transition-colors sm:p-[34px] sm:text-sm ${isDark ? "border-white/10 bg-zinc-900/50" : "border-stone-200 bg-white/95"}`}
+        {/* Package Manager Selector */}
+        <div className="mb-[21px] flex items-center justify-center gap-2">
+          {packageManagers.map((pm) => (
+            <button
+              key={pm.id}
+              onClick={() => setActiveManager(pm.id)}
+              className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 ${
+                pm.id === activeManager
+                  ? isDark
+                    ? "bg-blue-600 text-white shadow-lg"
+                    : "bg-blue-100 text-blue-900 shadow-md"
+                  : isDark
+                    ? "bg-zinc-800/50 text-zinc-400 hover:bg-zinc-700/70 hover:text-zinc-200"
+                    : "bg-stone-100 text-stone-600 hover:bg-stone-200 hover:text-stone-800"
+              }`}
             >
-              <div className="mb-[13px] flex items-center gap-[13px]">
-                <div className="flex items-center gap-[8px]">
-                  <span className="h-[8px] w-[8px] rounded-full bg-red-500/70" />
-                  <span className="h-[8px] w-[8px] rounded-full bg-yellow-400/70" />
-                  <span className="h-[8px] w-[8px] rounded-full bg-emerald-400/70" />
-                </div>
-                <span className={`text-[10px] tracking-[0.2em] uppercase ${isDark ? "text-zinc-500" : "text-stone-500"}`}>
-                  AppInit CLI
-                </span>
+              {pm.name}
+            </button>
+          ))}
+        </div>
+        
+        {/* CLI Focal Window */}
+        <div className="pointer-events-none absolute -inset-[21px] rounded-[34px] bg-cyan-500/10 blur-[80px]" />
+        <div className="pointer-events-none absolute -right-[13px] -top-[13px] h-[89px] w-[144px] rounded-full bg-violet-500/10 blur-[60px]" />
+        <div className="group relative">
+          <div
+            className={`absolute -inset-2 rounded-[34px] opacity-20 blur-3xl transition duration-[700ms] group-hover:opacity-35 ${
+              isDark ? "bg-cyan-500/30" : "bg-indigo-300/60"
+            }`}
+          />
+          <div
+            className={`relative overflow-hidden rounded-[34px] border p-[21px] text-left font-mono text-xs shadow-2xl backdrop-blur-2xl transition-colors sm:p-[34px] sm:text-sm ${
+              isDark ? "border-white/10 bg-zinc-900/50" : "border-stone-200 bg-white/95"
+            }`}
+          >
+            <div className="mb-[13px] flex items-center gap-[13px]">
+              <div className="flex items-center gap-[8px]">
+                <span className="h-[8px] w-[8px] rounded-full bg-red-500/70" />
+                <span className="h-[8px] w-[8px] rounded-full bg-yellow-400/70" />
+                <span className="h-[8px] w-[8px] rounded-full bg-emerald-400/70" />
               </div>
-              <div className="flex items-center justify-between gap-[13px]">
-                <div className="min-w-0">
-                  <div className={`text-[10px] ${isDark ? "text-zinc-500" : "text-stone-500"}`}>Terminal</div>
-                  <div className={`mt-[8px] flex items-center gap-[13px] ${isDark ? "text-zinc-200" : "text-stone-700"}`}>
-                    <span className="font-bold text-cyan-400 select-none">❯</span>
-                    <span className="truncate tracking-tight">{command}</span>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={onCopy}
-                  className={`group/btn relative shrink-0 overflow-hidden rounded-[13px] p-2.5 transition-all duration-[160ms] active:scale-105 ${
-                    isCopied
-                      ? isDark
-                        ? "bg-emerald-600/30 text-emerald-400"
-                        : "bg-emerald-100 text-emerald-600"
-                      : isDark
-                        ? "bg-zinc-800/50 text-zinc-400 hover:bg-cyan-500 hover:text-white"
-                        : "bg-stone-100 text-stone-500 hover:bg-indigo-600 hover:text-white"
-                  }`}
-                  aria-label="Copy command"
-                >
-                  <div className="relative flex items-center justify-center">
-                    {isCopied ? (
-                      <Check
-                        size={18}
-                        className="animate-in zoom-in-0 spin-in-0 duration-300"
-                      />
-                    ) : (
-                      <Copy
-                        size={18}
-                        className="transition-transform duration-300 group-hover/btn:scale-110 group-hover/btn:rotate-12"
-                      />
-                    )}
-                  </div>
-                </button>
-              </div>
-              <div className="mt-[13px] grid gap-[8px] text-[10px]">
-                <span className={`${isDark ? "text-zinc-500" : "text-stone-500"}`}>✔ Templates: Express + WebSockets</span>
-                <span className={`${isDark ? "text-zinc-500" : "text-stone-500"}`}>✔ Language: TypeScript or JavaScript</span>
-              </div>
-              <div className="absolute top-0 -left-full h-full w-full skew-x-12 bg-linear-to-r from-transparent via-white/5 to-transparent transition-all duration-1000 group-hover:left-full" />
+              <span
+                className={`text-[10px] tracking-[0.2em] uppercase ${
+                  isDark ? "text-zinc-500" : "text-stone-500"
+                }`}
+              >
+                AppInit CLI - {currentManager.name}
+              </span>
             </div>
+            <div className="flex items-center justify-between gap-[13px]">
+              <div className="min-w-0">
+                <div className={`text-[10px] ${isDark ? "text-zinc-500" : "text-stone-500"}`}>
+                  Terminal
+                </div>
+                <div className={`mt-[4px] text-[9px] ${isDark ? "text-zinc-600" : "text-stone-400"}`}>
+                  {currentManager.description}
+                </div>
+                <div
+                  className={`mt-[8px] flex items-center gap-[13px] ${
+                    isDark ? "text-zinc-200" : "text-stone-700"
+                  }`}
+                >
+                  <span className="font-bold text-cyan-400 select-none">❯</span>
+                  <span className="truncate tracking-tight">{currentManager.command}</span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(currentManager.command);
+                  // You might want to add a copied state for this specific button
+                }}
+                className={`group/btn relative shrink-0 overflow-hidden rounded-[13px] p-2.5 transition-all duration-[160ms] active:scale-105 ${
+                  isCopied
+                    ? isDark
+                      ? "bg-emerald-600/30 text-emerald-400"
+                      : "bg-emerald-100 text-emerald-600"
+                    : isDark
+                      ? "bg-zinc-800/50 text-zinc-400 hover:bg-cyan-500 hover:text-white"
+                      : "bg-stone-100 text-stone-500 hover:bg-indigo-600 hover:text-white"
+                }`}
+                aria-label="Copy command"
+              >
+                <div className="relative flex items-center justify-center">
+                  {isCopied ? (
+                    <Check
+                      size={18}
+                      className="animate-in zoom-in-0 spin-in-0 duration-300"
+                    />
+                  ) : (
+                    <Copy
+                      size={18}
+                      className="transition-transform duration-300 group-hover/btn:scale-110 group-hover/btn:rotate-12"
+                    />
+                  )}
+                </div>
+              </button>
+            </div>
+            <div className="mt-[13px] grid gap-[8px] text-[10px]">
+              <span className={`${isDark ? "text-zinc-500" : "text-stone-500"}`}>
+                ✔ Templates: Express REST + WebSockets
+              </span>
+              <span className={`${isDark ? "text-zinc-500" : "text-stone-500"}`}>
+                ✔ Language: TypeScript or JavaScript  
+              </span>
+              <span className={`${isDark ? "text-zinc-500" : "text-stone-500"}`}>
+                ✔ Auto-detects your preferred package manager
+              </span>
+            </div>
+            <div className="absolute top-0 -left-full h-full w-full skew-x-12 bg-linear-to-r from-transparent via-white/5 to-transparent transition-all duration-1000 group-hover:left-full" />
           </div>
         </div>
+      </div>
     </header>
   );
 }

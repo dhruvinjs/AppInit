@@ -33,15 +33,35 @@ export function GettingStartedSection({ isDark }: { isDark: boolean }) {
           Start with the interactive flow, then customize with flags as your project requirements grow.
         </p>
 
-        <pre
-          className={`mt-6 overflow-x-auto rounded-xl border p-4 text-sm ${
-            isDark
-              ? "border-zinc-800 bg-zinc-950 text-zinc-200"
-              : "border-stone-200 bg-stone-50 text-stone-800"
-          }`}
-        >
-          <code>{`npx @dhruvinjs/appinit my-app`}</code>
-        </pre>
+        <div className="mt-6 space-y-3">
+          <pre
+            className={`overflow-x-auto rounded-xl border p-4 text-sm ${
+              isDark
+                ? "border-zinc-800 bg-zinc-950 text-zinc-200"
+                : "border-stone-200 bg-stone-50 text-stone-800"
+            }`}
+          >
+            <code>{`npx @dhruvinjs/appinit my-app`}</code>
+          </pre>
+          <pre
+            className={`overflow-x-auto rounded-xl border p-4 text-sm ${
+              isDark
+                ? "border-zinc-800 bg-zinc-950 text-zinc-200"
+                : "border-stone-200 bg-stone-50 text-stone-800"
+            }`}
+          >
+            <code>{`pnpm dlx @dhruvinjs/appinit my-app`}</code>
+          </pre>
+          <pre
+            className={`overflow-x-auto rounded-xl border p-4 text-sm ${
+              isDark
+                ? "border-zinc-800 bg-zinc-950 text-zinc-200"
+                : "border-stone-200 bg-stone-50 text-stone-800"
+            }`}
+          >
+            <code>{`yarn dlx @dhruvinjs/appinit my-app`}</code>
+          </pre>
+        </div>
 
         <div className="mt-6 flex flex-wrap gap-3">
           <Button asChild className="rounded-xl bg-blue-600 text-white hover:bg-blue-500">

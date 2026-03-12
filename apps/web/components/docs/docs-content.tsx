@@ -56,6 +56,7 @@ function TreeItem({
   depth = 0,
   onSelect,
   selectedId,
+  isDark,
 }: {
   item: {
     id: string;
@@ -66,10 +67,12 @@ function TreeItem({
   depth?: number;
   onSelect: (file: ManifestFile) => void;
   selectedId: string;
+  isDark: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const isFolder = item.type === "folder";
   const isSelected = selectedId === item.id;
+  const hoverBg = isDark ? "rgba(255, 255, 255, 0.03)" : "rgba(15, 23, 42, 0.04)";
 
   const toggleOpen = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -83,12 +86,16 @@ function TreeItem({
   return (
     <div className="select-none">
       <motion.div
-        whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.03)" }}
+        whileHover={{ backgroundColor: hoverBg }}
         onClick={toggleOpen}
         className={`flex items-center py-2 px-3 rounded-md cursor-pointer transition-colors ${
           isSelected
-            ? "bg-blue-500/20 text-blue-400"
-            : "text-zinc-400 hover:text-zinc-200"
+            ? isDark
+              ? "bg-blue-500/20 text-blue-300"
+              : "bg-blue-50 text-blue-700 ring-1 ring-blue-100"
+            : isDark
+            ? "text-zinc-400 hover:text-zinc-200"
+            : "text-stone-600 hover:text-stone-900"
         }`}
         style={{ paddingLeft: `${depth * 16 + 12}px` }}
       >
@@ -102,11 +109,24 @@ function TreeItem({
           ) : (
             <FileText
               size={16}
-              className={isSelected ? "text-blue-400" : "text-zinc-500"}
+              className={
+                isSelected
+                  ? isDark
+                    ? "text-blue-300"
+                    : "text-blue-600"
+                  : isDark
+                  ? "text-zinc-500"
+                  : "text-stone-400"
+              }
             />
           )}
         </span>
-        {isFolder && <Folder size={16} className="mr-2 text-amber-400/80" />}
+        {isFolder && (
+          <Folder
+            size={16}
+            className={`mr-2 ${isDark ? "text-amber-400/80" : "text-amber-500"}`}
+          />
+        )}
         <span className="text-sm font-medium">{item.name}</span>
       </motion.div>
 
@@ -130,6 +150,7 @@ function TreeItem({
                 depth={depth + 1}
                 onSelect={onSelect}
                 selectedId={selectedId}
+                isDark={isDark}
               />
             ))}
           </motion.div>
@@ -143,10 +164,12 @@ function FileExplorer({
   sections,
   selectedPath,
   onSelect,
+  isDark,
 }: {
   sections: ManifestSection[];
   selectedPath: string;
   onSelect: (file: ManifestFile) => void;
+  isDark: boolean;
 }) {
   return (
     <div className="space-y-1">
@@ -161,6 +184,7 @@ function FileExplorer({
           }}
           onSelect={onSelect}
           selectedId={selectedPath}
+          isDark={isDark}
         />
       ))}
     </div>
@@ -173,35 +197,68 @@ function CodePreview({
   fileContent,
   isLoadingContent,
   mdxSource,
+  isDark,
 }: {
   selectedFile: ManifestFile | null;
   highlightedCode: string;
   fileContent: string;
   isLoadingContent: boolean;
   mdxSource: MDXRemoteSerializeResult | null;
+  isDark: boolean;
 }) {
   return (
-    <div className="flex-1 flex flex-col bg-[#111111] border border-zinc-800/50 rounded-xl overflow-hidden shadow-2xl">
+    <div
+      className={`flex-1 flex flex-col rounded-xl overflow-hidden ${
+        isDark
+          ? "bg-[#111111] border border-zinc-800/50 shadow-2xl"
+          : "bg-white border border-stone-200 shadow-sm"
+      }`}
+    >
       {/* Header */}
-      <div className="h-12 border-b border-zinc-800/50 bg-gradient-to-b from-[#151515] to-[#101010] px-4 flex items-center">
+      <div
+        className={`h-12 border-b px-4 flex items-center ${
+          isDark
+            ? "border-zinc-800/50 bg-gradient-to-b from-[#151515] to-[#101010]"
+            : "border-stone-200 bg-gradient-to-b from-white to-stone-50"
+        }`}
+      >
         <div className="flex items-center gap-2">
-          <FileCode size={14} className="text-zinc-500" />
-          <span className="text-xs font-mono text-zinc-400">
+          <FileCode
+            size={14}
+            className={isDark ? "text-zinc-500" : "text-stone-400"}
+          />
+          <span
+            className={`text-xs font-mono ${
+              isDark ? "text-zinc-400" : "text-stone-600"
+            }`}
+          >
             {selectedFile
               ? removeEjsExtension(selectedFile.name)
               : "Select a file to view code"}
           </span>
           {selectedFile && (
             <>
-              <span className="text-zinc-700">→</span>
-              <span className="text-[10px] font-mono text-zinc-500">
+              <span className={isDark ? "text-zinc-700" : "text-stone-300"}>
+                →
+              </span>
+              <span
+                className={`text-[10px] font-mono ${
+                  isDark ? "text-zinc-500" : "text-stone-500"
+                }`}
+              >
                 {selectedFile.targetPath}
               </span>
             </>
           )}
         </div>
         {selectedFile && (
-          <span className="ml-auto shrink-0 rounded px-2 py-0.5 text-[9px] font-semibold tracking-wide uppercase bg-blue-950 text-blue-300">
+          <span
+            className={`ml-auto shrink-0 rounded px-2 py-0.5 text-[9px] font-semibold tracking-wide uppercase ${
+              isDark
+                ? "bg-blue-950 text-blue-300"
+                : "bg-blue-50 text-blue-700 border border-blue-100"
+            }`}
+          >
             {languageFromPath(selectedFile.path)}
           </span>
         )}
@@ -210,7 +267,11 @@ function CodePreview({
       {/* Content */}
       <div className="flex-1 relative flex items-center justify-center overflow-auto">
         {isLoadingContent ? (
-          <div className="flex items-center text-zinc-400 text-sm">
+          <div
+            className={`flex items-center text-sm ${
+              isDark ? "text-zinc-400" : "text-stone-500"
+            }`}
+          >
             <svg
               className="mr-2 h-4 w-4 animate-spin"
               fill="none"
@@ -233,7 +294,11 @@ function CodePreview({
             Loading...
           </div>
         ) : selectedFile && mdxSource ? (
-          <div className="w-full h-full prose prose-invert max-w-none overflow-auto px-6 py-6 text-sm">
+          <div
+            className={`w-full h-full max-w-none overflow-auto px-6 py-6 text-sm ${
+              isDark ? "prose prose-invert" : "prose prose-stone"
+            }`}
+          >
             <MDXRemote {...mdxSource} />
           </div>
         ) : selectedFile && highlightedCode ? (
@@ -242,15 +307,33 @@ function CodePreview({
             dangerouslySetInnerHTML={{ __html: highlightedCode }}
           />
         ) : selectedFile ? (
-          <pre className="w-full h-full overflow-auto p-6 text-xs leading-relaxed bg-zinc-900 text-zinc-200">
+          <pre
+            className={`w-full h-full overflow-auto p-6 text-xs leading-relaxed ${
+              isDark
+                ? "bg-zinc-900 text-zinc-200"
+                : "bg-stone-50 text-stone-800 border border-stone-200"
+            }`}
+          >
             <code>{fileContent}</code>
           </pre>
         ) : (
           <div className="flex flex-col items-center text-center opacity-50">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-zinc-800 to-zinc-900 flex items-center justify-center mb-4 ring-1 ring-white/5">
+            <div
+              className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 ring-1 ${
+                isDark
+                  ? "bg-gradient-to-br from-zinc-800 to-zinc-900 ring-white/5"
+                  : "bg-gradient-to-br from-white to-stone-100 ring-stone-200"
+              }`}
+            >
               <FileText size={32} />
             </div>
-            <h4 className="text-lg font-medium text-white">No file selected</h4>
+            <h4
+              className={`text-lg font-medium ${
+                isDark ? "text-white" : "text-stone-900"
+              }`}
+            >
+              No file selected
+            </h4>
             <p className="text-sm max-w-60 mt-2">
               Choose a file from the explorer on the left to inspect its contents.
             </p>
@@ -269,6 +352,7 @@ function TemplateViewer({
   isLoadingContent,
   mdxSource,
   onSelectFile,
+  isDark,
 }: {
   sections: ManifestSection[];
   selectedFile: ManifestFile | null;
@@ -277,19 +361,44 @@ function TemplateViewer({
   isLoadingContent: boolean;
   mdxSource: MDXRemoteSerializeResult | null;
   onSelectFile: (file: ManifestFile) => void;
+  isDark: boolean;
 }) {
   return (
     <div className="flex gap-6 h-full">
       {/* File Tree Explorer */}
-      <div className="w-80 flex flex-col bg-[#111111] border border-zinc-800/50 rounded-xl overflow-hidden shadow-2xl">
-        <div className="p-4 border-b border-zinc-800/50 flex items-center justify-between bg-gradient-to-b from-[#151515] to-[#101010]">
+      <div
+        className={`w-80 flex flex-col rounded-xl overflow-hidden ${
+          isDark
+            ? "bg-[#111111] border border-zinc-800/50 shadow-2xl"
+            : "bg-white border border-stone-200 shadow-sm"
+        }`}
+      >
+        <div
+          className={`p-4 border-b flex items-center justify-between ${
+            isDark
+              ? "border-zinc-800/50 bg-gradient-to-b from-[#151515] to-[#101010]"
+              : "border-stone-200 bg-gradient-to-b from-white to-stone-50"
+          }`}
+        >
           <div>
-            <h3 className="text-sm font-semibold text-white">Files</h3>
-            <p className="text-[10px] text-zinc-500">Project structure</p>
+            <h3
+              className={`text-sm font-semibold ${
+                isDark ? "text-white" : "text-stone-900"
+              }`}
+            >
+              Files
+            </h3>
+            <p className={`text-[10px] ${isDark ? "text-zinc-500" : "text-stone-500"}`}>
+              Project structure
+            </p>
           </div>
           <Settings
             size={14}
-            className="text-zinc-600 cursor-pointer hover:text-zinc-400"
+            className={`cursor-pointer ${
+              isDark
+                ? "text-zinc-600 hover:text-zinc-400"
+                : "text-stone-400 hover:text-stone-600"
+            }`}
           />
         </div>
 
@@ -298,6 +407,7 @@ function TemplateViewer({
             sections={sections}
             selectedPath={selectedFile?.path ?? ""}
             onSelect={onSelectFile}
+            isDark={isDark}
           />
         </div>
       </div>
@@ -309,6 +419,7 @@ function TemplateViewer({
         fileContent={fileContent}
         isLoadingContent={isLoadingContent}
         mdxSource={mdxSource}
+        isDark={isDark}
       />
     </div>
   );
@@ -384,66 +495,54 @@ export function DocsContent({
 
     // Handle special sections
     if (activeSection === "database") {
-      // Show database-related files
-      const dbSection = manifest.languages[lang].find(
-        (s) => s.id === "rest_api"
-      );
-      const commonDbFile: ManifestFile = {
-        path: "base/common/db.ejs",
-        name: "db.ejs",
-        targetPath: lang === "typescript" ? "src/config/db.ts" : "src/config/db.js",
-      };
-
-      const dbConfigFiles = dbSection
-        ? dbSection.files.filter((f) => f.name.includes("db"))
-        : [];
-
-      return [
-        {
-          id: "database_common",
-          title: "Common Database Config",
-          files: [commonDbFile],
-        },
-        ...(dbConfigFiles.length > 0
-          ? [
-              {
-                id: "database_specific",
-                title: `${lang === "typescript" ? "TypeScript" : "JavaScript"} Database Config`,
-                files: dbConfigFiles,
-              },
-            ]
-          : []),
-      ];
+      return [];
     }
 
     if (activeSection === "docker") {
-      // Show Docker section with both languages organized
+      const findDockerFiles = (sections: ManifestSection[]) =>
+        sections
+          .flatMap((section) => section.files)
+          .filter(
+            (file) =>
+              /dockerfile/i.test(file.name) ||
+              /docker/i.test(file.path) ||
+              /docker/i.test(file.targetPath),
+          );
+
       const tsDockerSection = manifest.languages.typescript.find(
-        (s) => s.id === "docker"
+        (s) => s.id === "docker",
       );
       const jsDockerSection = manifest.languages.javascript.find(
-        (s) => s.id === "docker"
+        (s) => s.id === "docker",
       );
 
-      // If a language is selected, show only that language's Docker files
-      if (lang === "typescript" && tsDockerSection) {
-        return [
-          {
-            id: "docker_typescript",
-            title: "TypeScript Dockerfile",
-            files: tsDockerSection.files,
-          },
-        ];
-      } else if (lang === "javascript" && jsDockerSection) {
-        return [
-          {
-            id: "docker_javascript",
-            title: "JavaScript Dockerfile",
-            files: jsDockerSection.files,
-          },
-        ];
+      const tsDockerFiles =
+        tsDockerSection?.files?.length
+          ? tsDockerSection.files
+          : findDockerFiles(manifest.languages.typescript);
+      const jsDockerFiles =
+        jsDockerSection?.files?.length
+          ? jsDockerSection.files
+          : findDockerFiles(manifest.languages.javascript);
+
+      const sectionsOut: ManifestSection[] = [];
+
+      if (tsDockerFiles.length > 0) {
+        sectionsOut.push({
+          id: "docker_typescript",
+          title: "TypeScript Dockerfile",
+          files: tsDockerFiles,
+        });
       }
-      return [];
+      if (jsDockerFiles.length > 0) {
+        sectionsOut.push({
+          id: "docker_javascript",
+          title: "JavaScript Dockerfile",
+          files: jsDockerFiles,
+        });
+      }
+
+      return sectionsOut;
     }
 
     if (activeSection === "websockets") {
@@ -518,15 +617,25 @@ export function DocsContent({
 
   if (error) {
     return (
-      <div className="rounded-lg border border-red-500/30 bg-red-950/20 p-4">
-        <p className="text-red-200">{error}</p>
+      <div
+        className={`rounded-lg border p-4 ${
+          isDark
+            ? "border-red-500/30 bg-red-950/20 text-red-200"
+            : "border-red-200 bg-red-50 text-red-700"
+        }`}
+      >
+        <p>{error}</p>
       </div>
     );
   }
 
   if (isLoadingManifest) {
     return (
-      <div className="flex items-center justify-center p-12 text-zinc-400">
+      <div
+        className={`flex items-center justify-center p-12 ${
+          isDark ? "text-zinc-400" : "text-stone-500"
+        }`}
+      >
         <svg
           className="mr-2 h-5 w-5 animate-spin"
           fill="none"
@@ -556,6 +665,7 @@ export function DocsContent({
   }
 
   const sections = getSections();
+  const templateMotionKey = `${activeSection}-${activeTab}`;
   // Language selector removed - language now controlled by sidebar navigation
 
   // Get section description
@@ -608,11 +718,21 @@ export function DocsContent({
     <div className="h-full flex flex-col gap-6">
       {/* Section Info */}
       {sectionInfo && (
-        <div className="bg-[#111111]/80 border border-zinc-800/50 rounded-xl p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-          <h2 className="text-xl font-bold text-white mb-2">
+        <div
+          className={`rounded-xl p-6 ${
+            isDark
+              ? "bg-[#111111]/80 border border-zinc-800/50 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
+              : "bg-white/90 border border-stone-200 shadow-sm"
+          }`}
+        >
+          <h2
+            className={`text-xl font-bold mb-2 ${
+              isDark ? "text-white" : "text-stone-900"
+            }`}
+          >
             {sectionInfo.title}
           </h2>
-          <p className="text-zinc-400 text-sm">
+          <p className={`text-sm ${isDark ? "text-zinc-400" : "text-stone-600"}`}>
             {sectionInfo.description}
           </p>
           {sectionInfo.features && sectionInfo.features.length > 0 && (
@@ -620,7 +740,11 @@ export function DocsContent({
               {sectionInfo.features.map((feature) => (
                 <span
                   key={feature}
-                  className="text-[10px] uppercase tracking-wider text-zinc-300 bg-zinc-900/70 border border-zinc-800/60 px-2 py-1 rounded-md"
+                  className={`text-[10px] uppercase tracking-wider px-2 py-1 rounded-md ${
+                    isDark
+                      ? "text-zinc-300 bg-zinc-900/70 border border-zinc-800/60"
+                      : "text-stone-700 bg-stone-100 border border-stone-200"
+                  }`}
                 >
                   {feature}
                 </span>
@@ -635,17 +759,33 @@ export function DocsContent({
       {/* Template Viewer */}
       <div className="flex-1 min-h-0">
         {sections.length > 0 ? (
-          <TemplateViewer
-            sections={sections}
-            selectedFile={selectedFile}
-            highlightedCode={highlightedCode}
-            fileContent={fileContent}
-            isLoadingContent={isLoadingContent}
-            mdxSource={mdxSource}
-            onSelectFile={loadFileContent}
-          />
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={templateMotionKey}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="h-full"
+            >
+              <TemplateViewer
+                sections={sections}
+                selectedFile={selectedFile}
+                highlightedCode={highlightedCode}
+                fileContent={fileContent}
+                isLoadingContent={isLoadingContent}
+                mdxSource={mdxSource}
+                onSelectFile={loadFileContent}
+                isDark={isDark}
+              />
+            </motion.div>
+          </AnimatePresence>
         ) : (
-          <div className="flex items-center justify-center h-full text-zinc-500">
+          <div
+            className={`flex items-center justify-center h-full ${
+              isDark ? "text-zinc-500" : "text-stone-500"
+            }`}
+          >
             No files available for this section.
           </div>
         )}

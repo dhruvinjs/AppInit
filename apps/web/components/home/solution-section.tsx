@@ -49,11 +49,23 @@ export function SolutionSection({ isDark }: SolutionSectionProps) {
           >
             One Command
           </p>
-          <p
-            className={`mt-[13px] font-mono text-[21px] font-bold sm:text-[34px] ${isDark ? "text-blue-400" : "text-blue-600"}`}
-          >
-            npx @dhruvinjs/appinit my-app
-          </p>
+          <div className="mt-[13px] space-y-2">
+            <p
+              className={`font-mono text-[16px] font-bold sm:text-[21px] ${isDark ? "text-blue-400" : "text-blue-600"}`}
+            >
+              npx @dhruvinjs/appinit my-app
+            </p>
+            <p
+              className={`font-mono text-[16px] font-bold sm:text-[21px] ${isDark ? "text-blue-400" : "text-blue-600"}`}
+            >
+              pnpm dlx @dhruvinjs/appinit my-app
+            </p>
+            <p
+              className={`font-mono text-[16px] font-bold sm:text-[21px] ${isDark ? "text-blue-400" : "text-blue-600"}`}
+            >
+              yarn dlx @dhruvinjs/appinit my-app
+            </p>
+          </div>
           <p
             className={`mt-[13px] text-[13px] ${isDark ? "text-zinc-400" : "text-stone-600"}`}
           >
